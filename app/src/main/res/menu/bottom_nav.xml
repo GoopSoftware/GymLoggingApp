@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <item
+        android:id="@+id/nav_home"
+        android:icon="@drawable/home_24px"
+        android:title="Home" />
+
+    <item
+        android:id="@+id/nav_lifting_log"
+        android:icon="@drawable/exercise_24px"
+        android:title="Lifting" />
+
+    <item
+        android:id="@+id/nav_cardio_log"
+        android:icon="@drawable/cardiology_24px"
+        android:title="Cardio" />
+
+    <item
+        android:id="@+id/nav_previous_logs"
+        android:icon="@drawable/assignment_24px"
+        android:title="Logs" />
+
+</menu>
