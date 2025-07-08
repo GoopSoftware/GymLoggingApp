@@ -17,7 +17,7 @@
         android:title="Cardio" />
 
     <item
-        android:id="@+id/nav_previous_logs"
+        android:id="@+id/nav_logs"
         android:icon="@drawable/assignment_24px"
         android:title="Logs" />
 

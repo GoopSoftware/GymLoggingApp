@@ -6,19 +6,18 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
-import com.dzl.gymloggingapp.R
-import com.dzl.gymloggingapp.addexercise.AddExercise
+import androidx.fragment.app.activityViewModels
+import androidx.recyclerview.widget.LinearLayoutManager
+import com.dzl.gymloggingapp.addexercise.AddExerciseDialog
+import com.dzl.gymloggingapp.addexercise.ExerciseSelectionViewModel
 import com.dzl.gymloggingapp.databinding.FragmentLiftingBinding
-
-// TODO: Rename parameter arguments, choose names that match
-// the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
-private const val ARG_PARAM1 = "param1"
-private const val ARG_PARAM2 = "param2"
-
 
 class LiftingFragment : Fragment() {
 
     private lateinit var binding: FragmentLiftingBinding
+    private val exerciseViewModel: ExerciseSelectionViewModel by activityViewModels()
+
+    private val workoutExercises = mutableListOf<ExerciseLog>()
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -32,14 +31,45 @@ class LiftingFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+
+        binding.recyclerViewExercises.layoutManager = LinearLayoutManager(requireContext())
+        binding.recyclerViewExercises.adapter = ExercisesAdapter(workoutExercises)
+
+        // Logic for when user adds a new exercise through the AddExerciseDialog.kt
+        observeExerciseSelection()
+
         setUpOnClickListeners()
 
-        val workout = listOf(
-            ExerciseLog("Bench Press", mutableListOf(SetEntry(135, 8), SetEntry(135, 8), SetEntry(145, 6))),
-            ExerciseLog("Squat", mutableListOf(SetEntry(185, 5), SetEntry(195, 5)))
-        )
+        //
+        //displayExercises()
+    }
 
-        for (exercise in workout) {
+    private fun observeExerciseSelection() {
+        /*
+        Pull the selected exercise from AddExerciseDialog.kt via the ExerciseSelectionViewModel.kt
+        When a new exercise is selected from AddExerciseDialog
+        it adds the exercise to the workout list, updates the recyclerview,
+        and clears the selection to prevent duplicate entries
+         */
+        exerciseViewModel.selectedExercise.observe(viewLifecycleOwner) { exerciseName ->
+            if (exerciseName != null) {
+                // Add selected exercise to workoutExercises list
+                workoutExercises.add(ExerciseLog(exerciseName, mutableListOf()))
+                // Tells the RecyclerView that a new item was added
+                binding.recyclerViewExercises.adapter?.notifyItemInserted(workoutExercises.lastIndex)
+                // Clears the ViewModel so that duplicates arent added
+                exerciseViewModel.clearSelection()
+            }
+        }
+    }
+
+    private fun setUpOnClickListeners() {
+        binding.buttonAddExercise.setOnClickListener { launchExerciseDialog() }
+    }
+
+
+    private fun displayExercises() {
+        for (exercise in workoutExercises) {
             val exerciseTitle = TextView(requireContext()).apply {
                 text = exercise.name
                 textSize = 18f
@@ -52,19 +82,11 @@ class LiftingFragment : Fragment() {
                 textSize = 14f
             }
         }
-
-        binding.recyclerViewExercises.adapter = ExercisesAdapter(workout)
-        binding.recyclerViewExercises.layoutManager = androidx.recyclerview.widget.LinearLayoutManager(requireContext())
-
-
     }
 
-    private fun setUpOnClickListeners() {
-        binding.buttonAddExercise.setOnClickListener { launchExerciseDialog() }
-    }
 
     private fun launchExerciseDialog() {
-        val dialog = AddExercise()
+        val dialog = AddExerciseDialog()
         dialog.show(parentFragmentManager, "AddExerciseDialog")
     }
 
