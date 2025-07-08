@@ -6,6 +6,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
+import android.widget.Toast
 import androidx.fragment.app.activityViewModels
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.dzl.gymloggingapp.addexercise.AddExerciseDialog
@@ -32,24 +33,36 @@ class LiftingFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+        // Logic for Adding sets/reps to an exercise in the RecyclerView
+        setUpExerciseRecyclerView()
+        // Logic for when user adds a new exercise
+        observeExerciseSelection()
 
+        setUpOnClickListeners()
+    }
+
+    private fun setUpExerciseRecyclerView() {
+        /*
+        Initializes the RecyclerView that displays exercises for the current workout
+        Uses an adapter (ExercisesAdapter) with a click listener for each.
+        When an exercise is tapped it opens AddSetDialog to let the user add a set
+        once a set is added (weight + reps) its inserted into the exercises list
+        and the recyclerView updates just that item
+         */
+
+        // Set up the RecyclerView
         binding.recyclerViewExercises.layoutManager = LinearLayoutManager(requireContext())
+
+        // Attach adapter and handle clicks to open AddSetDialog
         binding.recyclerViewExercises.adapter = ExercisesAdapter(workoutExercises) { position ->
             val dialog = AddSetDialog { weight, reps ->
+                // Adds set (weight + reps)
                 workoutExercises[position].sets.add(SetEntry(weight, reps))
+                //Notify the recycler that its changed passing the position through
                 binding.recyclerViewExercises.adapter?.notifyItemChanged(position)
             }
             dialog.show(parentFragmentManager, "AddSetDialog")
         }
-
-        // Logic for when user adds a new exercise through the AddExerciseDialog.kt
-        observeExerciseSelection()
-
-        setUpOnClickListeners()
-
-
-        //
-        //displayExercises()
     }
 
     private fun observeExerciseSelection() {
@@ -73,25 +86,12 @@ class LiftingFragment : Fragment() {
 
     private fun setUpOnClickListeners() {
         binding.buttonAddExercise.setOnClickListener { launchExerciseDialog() }
+        binding.buttonFinishWorkout.setOnClickListener { finishExercise() }
     }
 
-
-    private fun displayExercises() {
-        for (exercise in workoutExercises) {
-            val exerciseTitle = TextView(requireContext()).apply {
-                text = exercise.name
-                textSize = 18f
-                setPadding(0, 16, 0, 4)
-            }
-
-            val setsText = exercise.sets.joinToString { "${it.weight}x${it.reps}" }
-            val setsView = TextView(requireContext()).apply {
-                text = setsText
-                textSize = 14f
-            }
-        }
+    private fun finishExercise() {
+        Toast.makeText(context, "Workout Finished, Great Job! You can view and edit this workout in the workout Logs", Toast.LENGTH_LONG).show()
     }
-
 
     private fun launchExerciseDialog() {
         val dialog = AddExerciseDialog()

@@ -5,19 +5,6 @@
     android:layout_height="match_parent"
     android:padding="24dp">
 
-    <TextView
-        android:id="@+id/text_view_select_exercise"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:padding="24dp"
-        android:text="Select Exercise"
-        android:textSize="16sp"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-
-        />
-
     <Spinner
         android:id="@+id/spinner_exercise"
         android:layout_width="0dp"
@@ -25,10 +12,9 @@
         android:layout_marginEnd="8dp"
         app:layout_constraintEnd_toStartOf="@id/button_custom_exercise"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/text_view_select_exercise" />
+        app:layout_constraintTop_toTopOf="parent" />
 
     <Button
-
         android:id="@+id/button_custom_exercise"
         android:layout_width="55dp"
         android:layout_height="wrap_content"
