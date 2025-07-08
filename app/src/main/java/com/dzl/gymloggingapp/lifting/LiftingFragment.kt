@@ -9,6 +9,7 @@ import android.widget.TextView
 import androidx.fragment.app.activityViewModels
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.dzl.gymloggingapp.addexercise.AddExerciseDialog
+import com.dzl.gymloggingapp.addexercise.AddSetDialog
 import com.dzl.gymloggingapp.addexercise.ExerciseSelectionViewModel
 import com.dzl.gymloggingapp.databinding.FragmentLiftingBinding
 
@@ -33,12 +34,19 @@ class LiftingFragment : Fragment() {
         super.onViewCreated(view, savedInstanceState)
 
         binding.recyclerViewExercises.layoutManager = LinearLayoutManager(requireContext())
-        binding.recyclerViewExercises.adapter = ExercisesAdapter(workoutExercises)
+        binding.recyclerViewExercises.adapter = ExercisesAdapter(workoutExercises) { position ->
+            val dialog = AddSetDialog { weight, reps ->
+                workoutExercises[position].sets.add(SetEntry(weight, reps))
+                binding.recyclerViewExercises.adapter?.notifyItemChanged(position)
+            }
+            dialog.show(parentFragmentManager, "AddSetDialog")
+        }
 
         // Logic for when user adds a new exercise through the AddExerciseDialog.kt
         observeExerciseSelection()
 
         setUpOnClickListeners()
+
 
         //
         //displayExercises()
