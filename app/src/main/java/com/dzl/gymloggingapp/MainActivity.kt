@@ -22,7 +22,10 @@ class MainActivity : AppCompatActivity(), BottomNavigationView.OnNavigationItemS
 
         binding.bottomNav.setOnItemSelectedListener(this)
 
+
+
     }
+
 
     // Not currently showing because we dont have a standard bar at the top. Figure out how to
     // show the options menu without adding the bar

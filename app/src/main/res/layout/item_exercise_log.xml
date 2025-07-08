@@ -10,7 +10,7 @@
 
     <!-- Exercise Name -->
     <TextView
-        android:id="@+id/text_exercise_name"
+        android:id="@+id/text_view_exercise_name"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:text="Bench Press"
@@ -22,12 +22,12 @@
 
     <!-- Set List -->
     <TextView
-        android:id="@+id/text_exercise_sets"
+        android:id="@+id/text_view_exercise_sets"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:text="135x8, 135x8, 145x6"
         android:textSize="14sp"
-        app:layout_constraintTop_toBottomOf="@id/text_exercise_name"
+        app:layout_constraintTop_toBottomOf="@id/text_view_exercise_name"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         android:layout_marginTop="4dp"

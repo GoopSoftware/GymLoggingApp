@@ -7,6 +7,7 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
 import com.dzl.gymloggingapp.R
+import com.dzl.gymloggingapp.addexercise.AddExercise
 import com.dzl.gymloggingapp.databinding.FragmentLiftingBinding
 
 // TODO: Rename parameter arguments, choose names that match
@@ -31,28 +32,11 @@ class LiftingFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+        setUpOnClickListeners()
 
         val workout = listOf(
             ExerciseLog("Bench Press", mutableListOf(SetEntry(135, 8), SetEntry(135, 8), SetEntry(145, 6))),
-            ExerciseLog("Squat", mutableListOf(SetEntry(185, 5), SetEntry(195, 5))),
-            ExerciseLog("Bench Press", mutableListOf(SetEntry(135, 8), SetEntry(135, 8), SetEntry(145, 6))),
-            ExerciseLog("Squat", mutableListOf(SetEntry(185, 5), SetEntry(195, 5))),
-            ExerciseLog("Bench Press", mutableListOf(SetEntry(135, 8), SetEntry(135, 8), SetEntry(145, 6))),
-            ExerciseLog("Squat", mutableListOf(SetEntry(185, 5), SetEntry(195, 5))),
-            ExerciseLog("Bench Press", mutableListOf(SetEntry(135, 8), SetEntry(135, 8), SetEntry(145, 6))),
-            ExerciseLog("Squat", mutableListOf(SetEntry(185, 5), SetEntry(195, 5))),
-            ExerciseLog("Bench Press", mutableListOf(SetEntry(135, 8), SetEntry(135, 8), SetEntry(145, 6))),
-            ExerciseLog("Squat", mutableListOf(SetEntry(185, 5), SetEntry(195, 5))),
-            ExerciseLog("Bench Press", mutableListOf(SetEntry(135, 8), SetEntry(135, 8), SetEntry(145, 6))),
-            ExerciseLog("Squat", mutableListOf(SetEntry(185, 5), SetEntry(195, 5))),
-            ExerciseLog("Bench Press", mutableListOf(SetEntry(135, 8), SetEntry(135, 8), SetEntry(145, 6))),
-            ExerciseLog("Squat", mutableListOf(SetEntry(185, 5), SetEntry(195, 5))),
-            ExerciseLog("Bench Press", mutableListOf(SetEntry(135, 8), SetEntry(135, 8), SetEntry(145, 6))),
-            ExerciseLog("Squat", mutableListOf(SetEntry(185, 5), SetEntry(195, 5))),
-            ExerciseLog("Bench Press", mutableListOf(SetEntry(135, 8), SetEntry(135, 8), SetEntry(145, 6))),
-            ExerciseLog("Squat", mutableListOf(SetEntry(185, 5), SetEntry(195, 5))),
-            ExerciseLog("Bench Press", mutableListOf(SetEntry(135, 8), SetEntry(135, 8), SetEntry(145, 6))),
-            ExerciseLog("Squat", mutableListOf(SetEntry(185, 5), SetEntry(195, 5))),
+            ExerciseLog("Squat", mutableListOf(SetEntry(185, 5), SetEntry(195, 5)))
         )
 
         for (exercise in workout) {
@@ -67,13 +51,21 @@ class LiftingFragment : Fragment() {
                 text = setsText
                 textSize = 14f
             }
-
-            binding.layoutExerciseList.addView(exerciseTitle)
-            binding.layoutExerciseList.addView(setsView)
-
         }
 
+        binding.recyclerViewExercises.adapter = ExercisesAdapter(workout)
+        binding.recyclerViewExercises.layoutManager = androidx.recyclerview.widget.LinearLayoutManager(requireContext())
 
+
+    }
+
+    private fun setUpOnClickListeners() {
+        binding.buttonAddExercise.setOnClickListener { launchExerciseDialog() }
+    }
+
+    private fun launchExerciseDialog() {
+        val dialog = AddExercise()
+        dialog.show(parentFragmentManager, "AddExerciseDialog")
     }
 
 }
