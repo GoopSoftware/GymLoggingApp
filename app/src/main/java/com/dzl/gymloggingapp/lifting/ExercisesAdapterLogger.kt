@@ -1,24 +1,22 @@
 package com.dzl.gymloggingapp.lifting
 
 import android.view.LayoutInflater
-import android.view.View
 import android.view.ViewGroup
-import android.widget.LinearLayout
-import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
-import com.dzl.gymloggingapp.databinding.ItemExerciseLogBinding
+import com.dzl.gymloggingapp.databinding.ItemExerciseLogForLiftingFragmentBinding
+import com.dzl.gymloggingapp.databinding.ItemExerciseLogForLogsDialogBinding
 
-class ExercisesAdapter(
+class ExercisesAdapterLogger(
     private val exercises: List<ExerciseLog>,
     private val onAddSetClicked: (position: Int) -> Unit
-) : RecyclerView.Adapter<ExercisesAdapter.ExerciseViewHolder>() {
+) : RecyclerView.Adapter<ExercisesAdapterLogger.ExerciseViewHolder>() {
 
-    inner class ExerciseViewHolder(val binding: ItemExerciseLogBinding) :
+    inner class ExerciseViewHolder(val binding: ItemExerciseLogForLiftingFragmentBinding) :
         RecyclerView.ViewHolder(binding.root)
 
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ExerciseViewHolder {
-        val binding = ItemExerciseLogBinding.inflate(
+        val binding = ItemExerciseLogForLiftingFragmentBinding.inflate(
             LayoutInflater.from(parent.context),
             parent,
             false

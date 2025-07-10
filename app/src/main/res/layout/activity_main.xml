@@ -11,7 +11,7 @@
 
     <androidx.fragment.app.FragmentContainerView
         android:id="@+id/frame_content"
-        android:name="com.dzl.gymloggingapp.lifting.LiftingFragment"
+        android:name="com.dzl.gymloggingapp.home.HomeFragment"
         android:layout_width="0dp"
         android:layout_height="0dp"
         app:layout_constraintTop_toTopOf="parent"

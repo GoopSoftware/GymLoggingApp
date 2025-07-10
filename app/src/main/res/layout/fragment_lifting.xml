@@ -47,7 +47,9 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/frame_header"
-        tools:listitem="@layout/item_exercise_log">
+        tools:listitem="@layout/item_exercise_log_for_lifting_fragment">
+
+
 
     </androidx.recyclerview.widget.RecyclerView>
 

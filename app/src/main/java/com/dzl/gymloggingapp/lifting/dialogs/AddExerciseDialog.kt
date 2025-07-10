@@ -1,4 +1,4 @@
-package com.dzl.gymloggingapp.addexercise
+package com.dzl.gymloggingapp.lifting.dialogs
 
 import android.app.AlertDialog
 import android.app.Dialog
@@ -9,6 +9,7 @@ import android.widget.Toast
 import androidx.fragment.app.DialogFragment
 import androidx.fragment.app.activityViewModels
 import com.dzl.gymloggingapp.databinding.DialogAddExerciseBinding
+import com.dzl.gymloggingapp.lifting.ExerciseSelectionViewModel
 
 class AddExerciseDialog : DialogFragment() {
 

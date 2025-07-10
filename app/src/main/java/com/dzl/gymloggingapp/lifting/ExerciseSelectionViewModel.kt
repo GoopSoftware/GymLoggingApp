@@ -1,4 +1,4 @@
-package com.dzl.gymloggingapp.addexercise
+package com.dzl.gymloggingapp.lifting
 
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData

@@ -1,12 +1,10 @@
-package com.dzl.gymloggingapp.addexercise
+package com.dzl.gymloggingapp.lifting.dialogs
 
 import android.app.Dialog
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.widget.Toast
-import androidx.appcompat.app.AlertDialog
 import androidx.fragment.app.DialogFragment
-import com.dzl.gymloggingapp.databinding.DialogAddExerciseBinding
 import com.dzl.gymloggingapp.databinding.DialogAddSetBinding
 
 class AddSetDialog(

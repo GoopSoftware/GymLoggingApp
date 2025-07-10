@@ -5,14 +5,16 @@ import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.TextView
 import android.widget.Toast
 import androidx.fragment.app.activityViewModels
 import androidx.recyclerview.widget.LinearLayoutManager
-import com.dzl.gymloggingapp.addexercise.AddExerciseDialog
-import com.dzl.gymloggingapp.addexercise.AddSetDialog
-import com.dzl.gymloggingapp.addexercise.ExerciseSelectionViewModel
 import com.dzl.gymloggingapp.databinding.FragmentLiftingBinding
+import com.dzl.gymloggingapp.dataclasses.WorkoutSession
+import com.dzl.gymloggingapp.lifting.dialogs.AddExerciseDialog
+import com.dzl.gymloggingapp.lifting.dialogs.AddSetDialog
+import com.google.gson.Gson
+import java.io.File
+import java.time.LocalDate
 
 class LiftingFragment : Fragment() {
 
@@ -41,6 +43,7 @@ class LiftingFragment : Fragment() {
         setUpOnClickListeners()
     }
 
+
     private fun setUpExerciseRecyclerView() {
         /*
         Initializes the RecyclerView that displays exercises for the current workout
@@ -54,7 +57,7 @@ class LiftingFragment : Fragment() {
         binding.recyclerViewExercises.layoutManager = LinearLayoutManager(requireContext())
 
         // Attach adapter and handle clicks to open AddSetDialog
-        binding.recyclerViewExercises.adapter = ExercisesAdapter(workoutExercises) { position ->
+        binding.recyclerViewExercises.adapter = ExercisesAdapterLogger(workoutExercises) { position ->
             val dialog = AddSetDialog { weight, reps ->
                 // Adds set (weight + reps)
                 workoutExercises[position].sets.add(SetEntry(weight, reps))
@@ -86,11 +89,29 @@ class LiftingFragment : Fragment() {
 
     private fun setUpOnClickListeners() {
         binding.buttonAddExercise.setOnClickListener { launchExerciseDialog() }
-        binding.buttonFinishWorkout.setOnClickListener { finishExercise() }
+        binding.buttonFinishWorkout.setOnClickListener {
+            saveWorkoutToFile()
+        }
     }
 
-    private fun finishExercise() {
-        Toast.makeText(context, "Workout Finished, Great Job! You can view and edit this workout in the workout Logs", Toast.LENGTH_LONG).show()
+    private fun saveWorkoutToFile() {
+        /*
+        This function will take the current mutable list workoutExercises and apply the date to
+        the data class WorkoutSession() then apply that to a json file using Gson dependancy
+        when the user clicks the finish workout button
+         */
+        val currentDate = LocalDate.now().toString()
+        val session = WorkoutSession(currentDate, workoutExercises)
+
+        val gson = Gson()
+        val json = gson.toJson(session)
+
+        val filename = "$currentDate.json"
+        val file = File(requireContext().filesDir, filename)
+
+        file.writeText(json)
+        Toast.makeText(context, "Workout Saved! Check 'Logs' to view", Toast.LENGTH_LONG).show()
+
     }
 
     private fun launchExerciseDialog() {

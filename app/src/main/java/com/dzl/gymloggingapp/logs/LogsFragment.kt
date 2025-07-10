@@ -5,11 +5,16 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
+import androidx.recyclerview.widget.LinearLayoutManager
 import com.dzl.gymloggingapp.databinding.FragmentLogsBinding
+import com.dzl.gymloggingapp.dataclasses.WorkoutSession
+import com.dzl.gymloggingapp.logs.dialogs.ViewPreviousLogDialog
 
 class LogsFragment : Fragment() {
 
     private lateinit var binding: FragmentLogsBinding
+
+
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -19,5 +24,50 @@ class LogsFragment : Fragment() {
         binding = FragmentLogsBinding.inflate(inflater, container, false)
         return binding.root
     }
+
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
+
+        setUpLogsRecyclerView()
+    }
+
+
+    private fun launchLogsDialog(session: WorkoutSession) {
+        val dialog = ViewPreviousLogDialog.newInstance(session)
+        dialog.show(parentFragmentManager, "ViewPreviousLogDialog")
+
+    }
+
+
+    private fun loadWorkoutLogs(): List<WorkoutSession> {
+        val files = requireContext().filesDir.listFiles()
+        val gson = com.google.gson.Gson()
+        val logs = mutableListOf<WorkoutSession>()
+
+        files?.forEach { file ->
+            if (file.name.endsWith(".json")) {
+                val json = file.readText()
+                try {
+                    val session = gson.fromJson(json, WorkoutSession::class.java)
+                    logs.add(session)
+                } catch (e:Exception) {
+                    e.printStackTrace()
+                }
+            }
+        }
+        return logs.sortedByDescending{ it.date }
+    }
+
+
+    private fun setUpLogsRecyclerView() {
+        binding.recyclerViewLogs.layoutManager = LinearLayoutManager(requireContext())
+
+        val logs = loadWorkoutLogs()
+
+        binding.recyclerViewLogs.adapter = WorkoutLogAdapter(logs) { selectedLog ->
+            launchLogsDialog(selectedLog)
+        }
+    }
+
 
 }
