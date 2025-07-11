@@ -12,6 +12,7 @@ import com.dzl.gymloggingapp.databinding.FragmentLiftingBinding
 import com.dzl.gymloggingapp.dataclasses.WorkoutSession
 import com.dzl.gymloggingapp.lifting.dialogs.AddExerciseDialog
 import com.dzl.gymloggingapp.lifting.dialogs.AddSetDialog
+import com.dzl.gymloggingapp.logs.WorkoutLogViewModel
 import com.google.gson.Gson
 import java.io.File
 import java.time.LocalDate
@@ -20,8 +21,7 @@ class LiftingFragment : Fragment() {
 
     private lateinit var binding: FragmentLiftingBinding
     private val exerciseViewModel: ExerciseSelectionViewModel by activityViewModels()
-
-    private val workoutExercises = mutableListOf<ExerciseLog>()
+    private val workoutLogViewModel: WorkoutLogViewModel by activityViewModels()
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -35,12 +35,21 @@ class LiftingFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+
+        // Loading the exercise list from file temp_workout.json
+        workoutLogViewModel.loadFromFile()
         // Logic for Adding sets/reps to an exercise in the RecyclerView
         setUpExerciseRecyclerView()
         // Logic for when user adds a new exercise
         observeExerciseSelection()
 
         setUpOnClickListeners()
+    }
+
+
+    override fun onPause() {
+        workoutLogViewModel.saveToFile()
+        super.onPause()
     }
 
 
@@ -57,15 +66,16 @@ class LiftingFragment : Fragment() {
         binding.recyclerViewExercises.layoutManager = LinearLayoutManager(requireContext())
 
         // Attach adapter and handle clicks to open AddSetDialog
-        binding.recyclerViewExercises.adapter = ExercisesAdapterLogger(workoutExercises) { position ->
-            val dialog = AddSetDialog { weight, reps ->
-                // Adds set (weight + reps)
-                workoutExercises[position].sets.add(SetEntry(weight, reps))
-                //Notify the recycler that its changed passing the position through
-                binding.recyclerViewExercises.adapter?.notifyItemChanged(position)
+        binding.recyclerViewExercises.adapter =
+            ExercisesAdapterLogger(workoutLogViewModel.workoutExercises) { position ->
+                val dialog = AddSetDialog { weight, reps ->
+                    // Adds set (weight + reps)
+                    workoutLogViewModel.workoutExercises[position].sets.add(SetEntry(weight, reps))
+                    //Notify the recycler that its changed passing the position through
+                    binding.recyclerViewExercises.adapter?.notifyItemChanged(position)
+                }
+                dialog.show(parentFragmentManager, "AddSetDialog")
             }
-            dialog.show(parentFragmentManager, "AddSetDialog")
-        }
     }
 
     private fun observeExerciseSelection() {
@@ -78,9 +88,9 @@ class LiftingFragment : Fragment() {
         exerciseViewModel.selectedExercise.observe(viewLifecycleOwner) { exerciseName ->
             if (exerciseName != null) {
                 // Add selected exercise to workoutExercises list
-                workoutExercises.add(ExerciseLog(exerciseName, mutableListOf()))
+                workoutLogViewModel.workoutExercises.add(ExerciseLog(exerciseName, mutableListOf()))
                 // Tells the RecyclerView that a new item was added
-                binding.recyclerViewExercises.adapter?.notifyItemInserted(workoutExercises.lastIndex)
+                binding.recyclerViewExercises.adapter?.notifyItemInserted(workoutLogViewModel.workoutExercises.lastIndex)
                 // Clears the ViewModel so that duplicates arent added
                 exerciseViewModel.clearSelection()
             }
@@ -101,7 +111,7 @@ class LiftingFragment : Fragment() {
         when the user clicks the finish workout button
          */
         val currentDate = LocalDate.now().toString()
-        val session = WorkoutSession(currentDate, workoutExercises)
+        val session = WorkoutSession(currentDate, workoutLogViewModel.workoutExercises)
 
         val gson = Gson()
         val json = gson.toJson(session)
@@ -110,6 +120,11 @@ class LiftingFragment : Fragment() {
         val file = File(requireContext().filesDir, filename)
 
         file.writeText(json)
+
+        workoutLogViewModel.clearTempFile()
+        workoutLogViewModel.workoutExercises.clear()
+        binding.recyclerViewExercises.adapter?.notifyDataSetChanged()
+
         Toast.makeText(context, "Workout Saved! Check 'Logs' to view", Toast.LENGTH_LONG).show()
 
     }

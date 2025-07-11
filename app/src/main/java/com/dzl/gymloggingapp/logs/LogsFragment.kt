@@ -14,8 +14,6 @@ class LogsFragment : Fragment() {
 
     private lateinit var binding: FragmentLogsBinding
 
-
-
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
@@ -27,17 +25,8 @@ class LogsFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-
         setUpLogsRecyclerView()
     }
-
-
-    private fun launchLogsDialog(session: WorkoutSession) {
-        val dialog = ViewPreviousLogDialog.newInstance(session)
-        dialog.show(parentFragmentManager, "ViewPreviousLogDialog")
-
-    }
-
 
     private fun loadWorkoutLogs(): List<WorkoutSession> {
         val files = requireContext().filesDir.listFiles()
@@ -45,17 +34,17 @@ class LogsFragment : Fragment() {
         val logs = mutableListOf<WorkoutSession>()
 
         files?.forEach { file ->
-            if (file.name.endsWith(".json")) {
+            if (file.name.matches(Regex("\\d{4}-\\d{2}-\\d{2}\\.json"))) {
                 val json = file.readText()
                 try {
                     val session = gson.fromJson(json, WorkoutSession::class.java)
                     logs.add(session)
-                } catch (e:Exception) {
+                } catch (e: Exception) {
                     e.printStackTrace()
                 }
             }
         }
-        return logs.sortedByDescending{ it.date }
+        return logs.sortedByDescending { it.date }
     }
 
 
@@ -69,5 +58,9 @@ class LogsFragment : Fragment() {
         }
     }
 
+    private fun launchLogsDialog(session: WorkoutSession) {
+        val dialog = ViewPreviousLogDialog.newInstance(session)
+        dialog.show(parentFragmentManager, "ViewPreviousLogDialog")
+    }
 
 }
