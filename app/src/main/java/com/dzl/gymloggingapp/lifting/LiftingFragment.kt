@@ -20,6 +20,7 @@ import java.time.LocalDate
 class LiftingFragment : Fragment() {
 
     private lateinit var binding: FragmentLiftingBinding
+    private lateinit var adapter: ExercisesAdapterLogger
     private val exerciseViewModel: ExerciseSelectionViewModel by activityViewModels()
     private val workoutLogViewModel: WorkoutLogViewModel by activityViewModels()
 
@@ -66,16 +67,26 @@ class LiftingFragment : Fragment() {
         binding.recyclerViewExercises.layoutManager = LinearLayoutManager(requireContext())
 
         // Attach adapter and handle clicks to open AddSetDialog
-        binding.recyclerViewExercises.adapter =
-            ExercisesAdapterLogger(workoutLogViewModel.workoutExercises) { position ->
-                val dialog = AddSetDialog { weight, reps ->
-                    // Adds set (weight + reps)
-                    workoutLogViewModel.workoutExercises[position].sets.add(SetEntry(weight, reps))
-                    //Notify the recycler that its changed passing the position through
-                    binding.recyclerViewExercises.adapter?.notifyItemChanged(position)
+        adapter =
+            ExercisesAdapterLogger(
+                workoutLogViewModel.workoutExercises,
+                onAddSetClicked = { position ->
+                    val dialog = AddSetDialog { weight, reps ->
+                        workoutLogViewModel.workoutExercises[position].sets.add(
+                            SetEntry(
+                                weight,
+                                reps
+                            )
+                        )
+                        adapter.notifyItemChanged(position)
+                    }
+                    dialog.show(parentFragmentManager, "AddSetDialog")
+                },
+                onAddExerciseClicked = {
+                    launchExerciseDialog()
                 }
-                dialog.show(parentFragmentManager, "AddSetDialog")
-            }
+            )
+        binding.recyclerViewExercises.adapter = adapter
     }
 
     private fun observeExerciseSelection() {
@@ -89,9 +100,12 @@ class LiftingFragment : Fragment() {
             if (exerciseName != null) {
                 // Add selected exercise to workoutExercises list
                 workoutLogViewModel.workoutExercises.add(ExerciseLog(exerciseName, mutableListOf()))
-                // Tells the RecyclerView that a new item was added
-                binding.recyclerViewExercises.adapter?.notifyItemInserted(workoutLogViewModel.workoutExercises.lastIndex)
-                // Clears the ViewModel so that duplicates arent added
+
+                if (workoutLogViewModel.workoutExercises.size == 1) {
+                    adapter.notifyDataSetChanged()
+                } else {
+                    adapter.notifyItemInserted(workoutLogViewModel.workoutExercises.lastIndex)
+                }
                 exerciseViewModel.clearSelection()
             }
         }
