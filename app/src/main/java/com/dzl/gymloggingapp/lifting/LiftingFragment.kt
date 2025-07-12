@@ -12,6 +12,7 @@ import com.dzl.gymloggingapp.databinding.FragmentLiftingBinding
 import com.dzl.gymloggingapp.dataclasses.WorkoutSession
 import com.dzl.gymloggingapp.lifting.dialogs.AddExerciseDialog
 import com.dzl.gymloggingapp.lifting.dialogs.AddSetDialog
+import com.dzl.gymloggingapp.lifting.dialogs.FinishWorkoutDialog
 import com.dzl.gymloggingapp.logs.WorkoutLogViewModel
 import com.google.gson.Gson
 import java.io.File
@@ -23,6 +24,7 @@ class LiftingFragment : Fragment() {
     private lateinit var adapter: ExercisesAdapterLogger
     private val exerciseViewModel: ExerciseSelectionViewModel by activityViewModels()
     private val workoutLogViewModel: WorkoutLogViewModel by activityViewModels()
+
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -83,7 +85,7 @@ class LiftingFragment : Fragment() {
                     dialog.show(parentFragmentManager, "AddSetDialog")
                 },
                 onAddExerciseClicked = {
-                    launchExerciseDialog()
+                    launchAddExerciseDialog()
                 }
             )
         binding.recyclerViewExercises.adapter = adapter
@@ -114,8 +116,20 @@ class LiftingFragment : Fragment() {
     private fun setUpOnClickListeners() {
         //binding.buttonAddExercise.setOnClickListener { launchExerciseDialog() }
         binding.buttonFinishWorkout.setOnClickListener {
-            saveWorkoutToFile()
+            launchFinishWorkoutDialog()
         }
+    }
+
+    private fun launchAddExerciseDialog() {
+        val dialog = AddExerciseDialog()
+        dialog.show(parentFragmentManager, "AddExerciseDialog")
+    }
+
+    private fun launchFinishWorkoutDialog() {
+        val dialog = FinishWorkoutDialog(onConfirm = {
+            saveWorkoutToFile()
+        })
+        dialog.show(parentFragmentManager, "AddExerciseDialog")
     }
 
     private fun saveWorkoutToFile() {
@@ -143,10 +157,6 @@ class LiftingFragment : Fragment() {
 
     }
 
-    private fun launchExerciseDialog() {
-        val dialog = AddExerciseDialog()
-        dialog.show(parentFragmentManager, "AddExerciseDialog")
-    }
 
 }
 

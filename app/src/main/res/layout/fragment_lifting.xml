@@ -42,7 +42,7 @@
         android:id="@+id/recycler_view_exercises"
         android:layout_width="0dp"
         android:layout_height="0dp"
-        app:layout_constraintBottom_toTopOf="@id/button_finish_workout"
+        app:layout_constraintBottom_toTopOf="@id/button_save_as_template"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/frame_header"
@@ -54,18 +54,18 @@
     </androidx.recyclerview.widget.RecyclerView>
 
 
-<!---
+
     <Button
-        android:id="@+id/button_add_exercise"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:text="Add Exercise"
+        android:text="Create Workout Template"
+        android:id="@+id/button_save_as_template"
         android:textColor="@color/black"
+        style="@style/Widget.MaterialComponents.Button.OutlinedButton"
         app:layout_constraintTop_toBottomOf="@id/recycler_view_exercises"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintBottom_toTopOf="@id/button_finish_workout" />
--->
 
     <Button
         android:id="@+id/button_finish_workout"

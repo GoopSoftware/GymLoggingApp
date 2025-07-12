@@ -39,14 +39,14 @@ class AddExerciseDialog : DialogFragment() {
             dismiss()
         }
 
-        val customBinding = DialogAddCustomExerciseBinding.inflate(LayoutInflater.from(context))
+        val customExerciseBinding = DialogAddCustomExerciseBinding.inflate(LayoutInflater.from(context))
         binding.buttonCustomExercise.setOnClickListener {
             AlertDialog.Builder(requireContext())
                 .setTitle("Custom Exercise")
                 .setMessage("Enter the name of the new exercise: ")
-                .setView(customBinding.root)
+                .setView(customExerciseBinding.root)
                 .setPositiveButton("Add") { _, _ ->
-                    val name = customBinding.editTextCustomExercise.text.toString().trim()
+                    val name = customExerciseBinding.editTextCustomExercise.text.toString().trim()
                     if (name.isNotEmpty()) {
                         customExerciseViewModel.addExercise(name)
                         adapter.notifyDataSetChanged()
