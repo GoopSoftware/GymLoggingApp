@@ -112,7 +112,7 @@ class LiftingFragment : Fragment() {
     }
 
     private fun setUpOnClickListeners() {
-        binding.buttonAddExercise.setOnClickListener { launchExerciseDialog() }
+        //binding.buttonAddExercise.setOnClickListener { launchExerciseDialog() }
         binding.buttonFinishWorkout.setOnClickListener {
             saveWorkoutToFile()
         }

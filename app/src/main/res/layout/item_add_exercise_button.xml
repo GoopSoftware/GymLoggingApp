@@ -4,18 +4,19 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
-    <TextView
+    <com.google.android.material.textview.MaterialTextView
+        android:layout_marginTop="12dp"
         android:id="@+id/text_view_add_exercise"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:layout_marginTop="4dp"
         android:text="Add Exercise"
-        android:textSize="14sp"
         android:gravity="center"
-        android:textStyle="bold"
-        app:layout_constraintEnd_toEndOf="parent"
+        android:background="?attr/selectableItemBackground"
+        android:padding="16dp"
+        android:textSize="20sp"
+        app:lineHeight="32sp"
+        app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        android:padding="24dp"
-        app:layout_constraintTop_toTopOf="parent"/>
+        app:layout_constraintEnd_toEndOf="parent" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>
