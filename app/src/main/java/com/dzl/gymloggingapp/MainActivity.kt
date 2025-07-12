@@ -26,12 +26,6 @@ class MainActivity : AppCompatActivity(), BottomNavigationView.OnNavigationItemS
 
     }
 
-    // Not currently showing because we havent enabled the bar at the top. Figure out how to
-    // show the options menu without adding the bar
-    override fun onCreateOptionsMenu(menu: Menu?): Boolean {
-        menuInflater.inflate(R.menu.toolbar, menu)
-        return true
-    }
 
     private fun onHomeClicked() {
         supportFragmentManager.commit {

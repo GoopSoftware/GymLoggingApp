@@ -3,10 +3,16 @@ package com.dzl.gymloggingapp.lifting
 import android.os.Bundle
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
+import android.view.Menu
+import android.view.MenuInflater
+import android.view.MenuItem
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
+import androidx.appcompat.app.AppCompatActivity
+import androidx.core.view.MenuProvider
 import androidx.fragment.app.activityViewModels
+import androidx.lifecycle.Lifecycle
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.dzl.gymloggingapp.databinding.FragmentLiftingBinding
 import com.dzl.gymloggingapp.dataclasses.WorkoutSession
@@ -14,6 +20,7 @@ import com.dzl.gymloggingapp.lifting.dialogs.AddExerciseDialog
 import com.dzl.gymloggingapp.lifting.dialogs.AddSetDialog
 import com.dzl.gymloggingapp.lifting.dialogs.FinishWorkoutDialog
 import com.dzl.gymloggingapp.logs.WorkoutLogViewModel
+import com.dzl.gymloggingapp.R
 import com.google.gson.Gson
 import java.io.File
 import java.time.LocalDate
@@ -25,6 +32,10 @@ class LiftingFragment : Fragment() {
     private val exerciseViewModel: ExerciseSelectionViewModel by activityViewModels()
     private val workoutLogViewModel: WorkoutLogViewModel by activityViewModels()
 
+
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+    }
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -39,6 +50,7 @@ class LiftingFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
+        setUpToolBar()
         // Loading the exercise list from file temp_workout.json
         workoutLogViewModel.loadFromFile()
         // Logic for Adding sets/reps to an exercise in the RecyclerView
@@ -47,6 +59,49 @@ class LiftingFragment : Fragment() {
         observeExerciseSelection()
 
         setUpOnClickListeners()
+    }
+
+    private fun setUpToolBar() {
+        val activity = requireActivity() as AppCompatActivity
+
+        // Create toolbar
+        activity.setSupportActionBar(binding.liftingToolbar)
+
+        // disable the app name
+        activity.supportActionBar?.setDisplayShowTitleEnabled(false)
+
+        // rebind after setting the toolbar
+        activity.addMenuProvider(
+            object : MenuProvider {
+                override fun onCreateMenu(menu: Menu, menuInflater: MenuInflater) {
+                    menuInflater.inflate(R.menu.lifting_menu, menu)
+                }
+
+                override fun onMenuItemSelected(menuItem: MenuItem): Boolean {
+                    return when (menuItem.itemId) {
+                        R.id.menu_clear_workout -> {
+                            workoutLogViewModel.workoutExercises.clear()
+                            binding.recyclerViewExercises.adapter?.notifyDataSetChanged()
+                            Toast.makeText(requireContext(), "Workout Cleared", Toast.LENGTH_LONG)
+                                .show()
+                            true
+                        }
+                        R.id.menu_create_template -> {
+                            true
+                        }
+                        R.id.menu_load_template -> {
+                            true
+                        }
+
+                        else -> false
+                    }
+                }
+            },
+            viewLifecycleOwner,
+            Lifecycle.State.RESUMED
+        )
+
+        binding.liftingToolbar.invalidateMenu()
     }
 
 

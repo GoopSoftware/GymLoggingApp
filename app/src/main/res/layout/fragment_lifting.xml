@@ -10,30 +10,30 @@
 
 
     <!-- Start Header -->
-    <FrameLayout
-        android:id="@+id/frame_header"
-        android:layout_width="0dp"
-        android:layout_height="100dp"
-        android:background="@color/lightGray"
-        app:layout_constraintEnd_toEndOf="parent"
+    <com.google.android.material.appbar.MaterialToolbar
+        android:id="@+id/lifting_toolbar"
+        android:layout_width="match_parent"
+        android:layout_height="60dp"
+        android:background="@color/medGray"
+        app:title="Lifting"
+        app:titleTextColor="@android:color/black"
+        app:titleTextAppearance="@style/TextAppearance.Material3.HeadlineLarge"
+        app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent">
+        app:layout_constraintEnd_toEndOf="parent"
+        app:popupTheme="@style/ThemeOverlay.Material3.Light" />
 
-        <View
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:background="@drawable/gradient_overlay" />
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Lifting"
+        android:textSize="20sp"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintBottom_toTopOf="@id/recycler_view_exercises"
+        />
 
-
-        <TextView
-            android:id="@+id/text_view_header"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:fontFamily="sans-serif-light"
-            android:gravity="center"
-            android:text="Lifting"
-            android:textSize="44sp" />
-    </FrameLayout>
     <!-- End Header -->
 
 
@@ -45,7 +45,7 @@
         app:layout_constraintBottom_toTopOf="@id/button_save_as_template"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/frame_header"
+        app:layout_constraintTop_toBottomOf="@id/lifting_toolbar"
         tools:listitem="@layout/item_exercise_log_for_lifting_fragment">
 
 
@@ -58,7 +58,7 @@
     <Button
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:text="Create Workout Template"
+        android:text="Templates"
         android:id="@+id/button_save_as_template"
         android:textColor="@color/black"
         style="@style/Widget.MaterialComponents.Button.OutlinedButton"
