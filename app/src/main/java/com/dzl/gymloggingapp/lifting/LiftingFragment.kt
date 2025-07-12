@@ -8,7 +8,9 @@ import android.view.MenuInflater
 import android.view.MenuItem
 import android.view.View
 import android.view.ViewGroup
+import android.widget.EditText
 import android.widget.Toast
+import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.MenuProvider
 import androidx.fragment.app.activityViewModels
@@ -66,10 +68,8 @@ class LiftingFragment : Fragment() {
 
         // Create toolbar
         activity.setSupportActionBar(binding.liftingToolbar)
-
         // disable the app name
         activity.supportActionBar?.setDisplayShowTitleEnabled(false)
-
         // rebind after setting the toolbar
         activity.addMenuProvider(
             object : MenuProvider {
@@ -80,16 +80,22 @@ class LiftingFragment : Fragment() {
                 override fun onMenuItemSelected(menuItem: MenuItem): Boolean {
                     return when (menuItem.itemId) {
                         R.id.menu_clear_workout -> {
-                            workoutLogViewModel.workoutExercises.clear()
-                            binding.recyclerViewExercises.adapter?.notifyDataSetChanged()
-                            Toast.makeText(requireContext(), "Workout Cleared", Toast.LENGTH_LONG)
-                                .show()
+                            clearWorkout()
                             true
                         }
+
                         R.id.menu_create_template -> {
+                            promptTemplateNameAndSave()
                             true
                         }
+
                         R.id.menu_load_template -> {
+                            promptTemplateLoad()
+                            true
+                        }
+
+                        R.id.menu_load_recent_log -> {
+                            promptLogLoad()
                             true
                         }
 
@@ -100,8 +106,180 @@ class LiftingFragment : Fragment() {
             viewLifecycleOwner,
             Lifecycle.State.RESUMED
         )
-
+        // Not required but for app safety
         binding.liftingToolbar.invalidateMenu()
+    }
+
+    private fun showFilteredLogFilePicker(daysBack: Int) {
+
+        val logsDir = File(requireContext().filesDir, "logs")
+
+        if (!logsDir.exists() || logsDir.listFiles().isNullOrEmpty()) {
+            Toast.makeText(requireContext(), "No logs found", Toast.LENGTH_SHORT).show()
+            return
+        }
+
+        val cutOffDate = LocalDate.now().minusDays(daysBack.toLong())
+
+        val validLogFiles = logsDir.listFiles()!!
+            .filter { it.name.matches(Regex("""\d{4}-\d{2}-\d{2}\.json""")) }
+            .filter {
+                try {
+                    val fileDate = LocalDate.parse(it.nameWithoutExtension)
+                    !fileDate.isBefore(cutOffDate)
+                } catch (e: Exception) {
+                    false
+                }
+            }
+            .sortedByDescending { it.name }
+
+        if (validLogFiles.isEmpty()) {
+            Toast.makeText(requireContext(), "No logs in past $daysBack days", Toast.LENGTH_SHORT).show()
+            return
+        }
+
+        val displayNames = validLogFiles.map { it.nameWithoutExtension }.toTypedArray()
+
+        AlertDialog.Builder(requireContext())
+            .setTitle("Select a Workout Log")
+            .setItems(displayNames) { _, which ->
+                loadWorkoutLogAsTemplate(validLogFiles[which])
+            }
+            .setNegativeButton("Cancel", null)
+            .show()
+    }
+
+    private fun promptLogLoad() {
+
+        val filterOptions = arrayOf("Past 30 days", "Past 90 Days")
+
+        AlertDialog.Builder(requireContext())
+            .setTitle("Filter Logs By")
+            .setItems(filterOptions) { _, index ->
+                val daysBack = if (index == 0) 30 else 90
+                showFilteredLogFilePicker(daysBack)
+            }
+            .setNegativeButton("Cancel", null)
+            .show()
+    }
+
+    private fun loadWorkoutLogAsTemplate(file: File) {
+
+        try {
+            val json = file.readText()
+            val gson = Gson()
+
+            val session = gson.fromJson(json, WorkoutSession::class.java)
+
+            workoutLogViewModel.workoutExercises.clear()
+
+            session.exercises.forEach { exerciseLog ->
+                workoutLogViewModel.workoutExercises.add(
+                    ExerciseLog(exerciseLog.name, mutableListOf())
+                )
+            }
+
+            binding.recyclerViewExercises.adapter?.notifyDataSetChanged()
+
+            Toast.makeText(requireContext(), "Workout from ${session.date} loaded as template", Toast.LENGTH_SHORT).show()
+
+        } catch (e: Exception) {
+            Toast.makeText(requireContext(), "Failed to load log", Toast.LENGTH_SHORT).show()
+            e.printStackTrace()
+        }
+
+    }
+
+    private fun promptTemplateLoad() {
+        val templatesDir = File(requireContext().filesDir, "templates")
+        if (!templatesDir.exists() || templatesDir.listFiles().isNullOrEmpty()) {
+            Toast.makeText(requireContext(), "No templates found", Toast.LENGTH_SHORT).show()
+            return
+        }
+
+        val templateFiles = templatesDir.listFiles()!!.filter { it.extension == "json"}
+
+        val templateNames = templateFiles.map { it.nameWithoutExtension }.toTypedArray()
+
+        AlertDialog.Builder(requireContext())
+            .setTitle("Select Template")
+            .setItems(templateNames) { _, which ->
+                val selectedFile = templateFiles[which]
+                loadTemplateFromFile(selectedFile)
+            }
+            .setNegativeButton("Cancel", null)
+            .show()
+    }
+
+    private fun loadTemplateFromFile(file: File) {
+        val json = file.readText()
+        val gson = Gson()
+
+        try {
+            val template = gson.fromJson(json, WorkoutTemplate::class.java)
+
+            workoutLogViewModel.workoutExercises.clear()
+
+            template.exercises.forEach { exerciseName ->
+                workoutLogViewModel.workoutExercises.add(
+                    ExerciseLog(exerciseName, mutableListOf())
+                )
+            }
+
+            binding.recyclerViewExercises.adapter?.notifyDataSetChanged()
+            Toast.makeText(requireContext(), "Template \"${template.name}\" loaded", Toast.LENGTH_SHORT).show()
+        } catch (e: Exception) {
+            Toast.makeText(requireContext(), "Failed to load template", Toast.LENGTH_SHORT).show()
+            e.printStackTrace()
+        }
+    }
+
+    private fun clearWorkout() {
+        workoutLogViewModel.workoutExercises.clear()
+        binding.recyclerViewExercises.adapter?.notifyDataSetChanged()
+        Toast.makeText(requireContext(), "Workout Cleared", Toast.LENGTH_LONG)
+            .show()
+    }
+
+    private fun promptTemplateNameAndSave() {
+        val input = EditText(requireContext())
+        input.hint = "e.g., Push Day, Upper 1, Chest"
+
+        AlertDialog.Builder(requireContext())
+            .setTitle("Save Workout as Template")
+            .setView(input)
+            .setPositiveButton("Save") {_, _ ->
+                val name = input.text.toString().trim()
+                if (name.isNotEmpty()) {
+                    saveWorkoutAsTemplate(name)
+                } else {
+                    Toast.makeText(requireContext(), "Template name required", Toast.LENGTH_SHORT).show()
+                }
+            }
+            .setNegativeButton("Cancel", null)
+            .show()
+    }
+
+    private fun saveWorkoutAsTemplate(templateName: String) {
+        val exerciseNames = workoutLogViewModel.workoutExercises.map { it.name }
+        if (exerciseNames.isEmpty()) {
+            Toast.makeText(requireContext(), "No exercises to save", Toast.LENGTH_SHORT).show()
+            return
+        }
+
+        val template = WorkoutTemplate(name = templateName, exercises = exerciseNames)
+
+        val gson = Gson()
+        val json = gson.toJson(template)
+
+        val templatesDir = File(requireContext().filesDir, "templates")
+        if (!templatesDir.exists()) templatesDir.mkdirs()
+
+        val safeFileName = templateName.replace("""[^\w\d_-]""".toRegex(), "_")
+        val file = File(templatesDir, "$safeFileName.json")
+        file.writeText(json)
+
+        Toast.makeText(requireContext(), "Template \"$templateName\" saved!", Toast.LENGTH_SHORT).show()
     }
 
 
@@ -199,9 +377,10 @@ class LiftingFragment : Fragment() {
         val gson = Gson()
         val json = gson.toJson(session)
 
-        val filename = "$currentDate.json"
-        val file = File(requireContext().filesDir, filename)
+        val logsDir = File(requireContext().filesDir, "logs")
+        if (!logsDir.exists()) logsDir.mkdirs()
 
+        val file = File(logsDir, "$currentDate.json")
         file.writeText(json)
 
         workoutLogViewModel.clearTempFile()
@@ -223,4 +402,9 @@ data class ExerciseLog(
 data class SetEntry(
     val weight: Int,
     val reps: Int
+)
+
+data class WorkoutTemplate (
+    val name: String,
+    val exercises: List<String>
 )

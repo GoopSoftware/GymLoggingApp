@@ -6,11 +6,17 @@
         android:title="Clear Workout" />
 
     <item
+        android:id="@+id/menu_create_template"
+        android:title="Save Workout as Template" />
+
+    <item
         android:id="@+id/menu_load_template"
         android:title="Load Template" />
 
     <item
-        android:id="@+id/menu_create_template"
-        android:title="Save Workout as Template" />
+        android:id="@+id/menu_load_recent_log"
+        android:title="Load Previous Workout as Template"/>
+
+
 
 </menu>

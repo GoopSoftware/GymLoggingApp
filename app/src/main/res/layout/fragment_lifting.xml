@@ -15,24 +15,23 @@
         android:layout_width="match_parent"
         android:layout_height="60dp"
         android:background="@color/medGray"
-        app:title="Lifting"
-        app:titleTextColor="@android:color/black"
-        app:titleTextAppearance="@style/TextAppearance.Material3.HeadlineLarge"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:popupTheme="@style/ThemeOverlay.Material3.Light" />
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:popupTheme="@style/ThemeOverlay.Material3.Light"
+        app:title="Lifting"
+        app:titleTextAppearance="@style/TextAppearance.Material3.HeadlineLarge"
+        app:titleTextColor="@android:color/black" />
 
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="Lifting"
         android:textSize="20sp"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintBottom_toTopOf="@id/recycler_view_exercises"
-        />
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
 
     <!-- End Header -->
 
@@ -42,42 +41,23 @@
         android:id="@+id/recycler_view_exercises"
         android:layout_width="0dp"
         android:layout_height="0dp"
-        app:layout_constraintBottom_toTopOf="@id/button_save_as_template"
+        app:layout_constraintBottom_toTopOf="@id/button_finish_workout"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/lifting_toolbar"
-        tools:listitem="@layout/item_exercise_log_for_lifting_fragment">
+        tools:listitem="@layout/item_exercise_log_for_lifting_fragment"/>
 
-
-
-
-    </androidx.recyclerview.widget.RecyclerView>
-
-
-
-    <Button
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:text="Templates"
-        android:id="@+id/button_save_as_template"
-        android:textColor="@color/black"
-        style="@style/Widget.MaterialComponents.Button.OutlinedButton"
-        app:layout_constraintTop_toBottomOf="@id/recycler_view_exercises"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintBottom_toTopOf="@id/button_finish_workout" />
 
     <Button
         android:id="@+id/button_finish_workout"
+        style="@style/Widget.MaterialComponents.Button.OutlinedButton"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:text="Finish Workout"
-        style="@style/Widget.MaterialComponents.Button.OutlinedButton"
         android:textColor="@color/black"
-        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintBottom_toBottomOf="parent" />
-
+        app:layout_constraintStart_toStartOf="parent" />
 
 
 </androidx.constraintlayout.widget.ConstraintLayout>
