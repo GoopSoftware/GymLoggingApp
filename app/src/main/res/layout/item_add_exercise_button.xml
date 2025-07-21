@@ -11,6 +11,7 @@
         android:layout_height="wrap_content"
         android:text="Add Exercise"
         android:gravity="center"
+        android:textColor="@color/black"
         android:background="?attr/selectableItemBackground"
         android:padding="16dp"
         android:textSize="20sp"

@@ -10,7 +10,7 @@ import com.dzl.gymloggingapp.databinding.ItemExerciseLogForLogsDialogBinding
 
 class ExercisesAdapterLogger(
     private val exercises: List<ExerciseLog>,
-    private val onAddSetClicked: (position: Int) -> Unit,
+    private val onEditExerciseClicked: (position: Int) -> Unit,
     private val onAddExerciseClicked: () -> Unit
 ) : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
 
@@ -64,7 +64,7 @@ class ExercisesAdapterLogger(
             }
 
             holder.itemView.setOnClickListener {
-                onAddSetClicked(position)
+                onEditExerciseClicked(position)
             }
 
         } else if (holder is AddButtonViewHolder) {

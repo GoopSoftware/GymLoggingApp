@@ -9,6 +9,8 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import com.dzl.gymloggingapp.databinding.FragmentLogsBinding
 import com.dzl.gymloggingapp.dataclasses.WorkoutSession
 import com.dzl.gymloggingapp.logs.dialogs.ViewPreviousLogDialog
+import com.google.gson.Gson
+import java.io.File
 
 class LogsFragment : Fragment() {
 
@@ -29,11 +31,13 @@ class LogsFragment : Fragment() {
     }
 
     private fun loadWorkoutLogs(): List<WorkoutSession> {
-        val files = requireContext().filesDir.listFiles()
-        val gson = com.google.gson.Gson()
+        val logsDir = File(requireContext().filesDir, "logs")
+        val gson = Gson()
         val logs = mutableListOf<WorkoutSession>()
 
-        files?.forEach { file ->
+        if (!logsDir.exists()) return emptyList()
+
+        logsDir.listFiles()?.forEach { file ->
             if (file.name.matches(Regex("\\d{4}-\\d{2}-\\d{2}\\.json"))) {
                 val json = file.readText()
                 try {

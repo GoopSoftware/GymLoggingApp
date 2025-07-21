@@ -19,10 +19,10 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import com.dzl.gymloggingapp.databinding.FragmentLiftingBinding
 import com.dzl.gymloggingapp.dataclasses.WorkoutSession
 import com.dzl.gymloggingapp.lifting.dialogs.AddExerciseDialog
-import com.dzl.gymloggingapp.lifting.dialogs.AddSetDialog
 import com.dzl.gymloggingapp.lifting.dialogs.FinishWorkoutDialog
 import com.dzl.gymloggingapp.logs.WorkoutLogViewModel
 import com.dzl.gymloggingapp.R
+import com.dzl.gymloggingapp.lifting.dialogs.EditExerciseDialog
 import com.google.gson.Gson
 import java.io.File
 import java.time.LocalDate
@@ -134,7 +134,8 @@ class LiftingFragment : Fragment() {
             .sortedByDescending { it.name }
 
         if (validLogFiles.isEmpty()) {
-            Toast.makeText(requireContext(), "No logs in past $daysBack days", Toast.LENGTH_SHORT).show()
+            Toast.makeText(requireContext(), "No logs in past $daysBack days", Toast.LENGTH_SHORT)
+                .show()
             return
         }
 
@@ -181,7 +182,11 @@ class LiftingFragment : Fragment() {
 
             binding.recyclerViewExercises.adapter?.notifyDataSetChanged()
 
-            Toast.makeText(requireContext(), "Workout from ${session.date} loaded as template", Toast.LENGTH_SHORT).show()
+            Toast.makeText(
+                requireContext(),
+                "Workout from ${session.date} loaded as template",
+                Toast.LENGTH_SHORT
+            ).show()
 
         } catch (e: Exception) {
             Toast.makeText(requireContext(), "Failed to load log", Toast.LENGTH_SHORT).show()
@@ -197,7 +202,7 @@ class LiftingFragment : Fragment() {
             return
         }
 
-        val templateFiles = templatesDir.listFiles()!!.filter { it.extension == "json"}
+        val templateFiles = templatesDir.listFiles()!!.filter { it.extension == "json" }
 
         val templateNames = templateFiles.map { it.nameWithoutExtension }.toTypedArray()
 
@@ -227,7 +232,11 @@ class LiftingFragment : Fragment() {
             }
 
             binding.recyclerViewExercises.adapter?.notifyDataSetChanged()
-            Toast.makeText(requireContext(), "Template \"${template.name}\" loaded", Toast.LENGTH_SHORT).show()
+            Toast.makeText(
+                requireContext(),
+                "Template \"${template.name}\" loaded",
+                Toast.LENGTH_SHORT
+            ).show()
         } catch (e: Exception) {
             Toast.makeText(requireContext(), "Failed to load template", Toast.LENGTH_SHORT).show()
             e.printStackTrace()
@@ -248,12 +257,13 @@ class LiftingFragment : Fragment() {
         AlertDialog.Builder(requireContext())
             .setTitle("Save Workout as Template")
             .setView(input)
-            .setPositiveButton("Save") {_, _ ->
+            .setPositiveButton("Save") { _, _ ->
                 val name = input.text.toString().trim()
                 if (name.isNotEmpty()) {
                     saveWorkoutAsTemplate(name)
                 } else {
-                    Toast.makeText(requireContext(), "Template name required", Toast.LENGTH_SHORT).show()
+                    Toast.makeText(requireContext(), "Template name required", Toast.LENGTH_SHORT)
+                        .show()
                 }
             }
             .setNegativeButton("Cancel", null)
@@ -279,7 +289,8 @@ class LiftingFragment : Fragment() {
         val file = File(templatesDir, "$safeFileName.json")
         file.writeText(json)
 
-        Toast.makeText(requireContext(), "Template \"$templateName\" saved!", Toast.LENGTH_SHORT).show()
+        Toast.makeText(requireContext(), "Template \"$templateName\" saved!", Toast.LENGTH_SHORT)
+            .show()
     }
 
 
@@ -302,25 +313,24 @@ class LiftingFragment : Fragment() {
         binding.recyclerViewExercises.layoutManager = LinearLayoutManager(requireContext())
 
         // Attach adapter and handle clicks to open AddSetDialog
-        adapter =
-            ExercisesAdapterLogger(
-                workoutLogViewModel.workoutExercises,
-                onAddSetClicked = { position ->
-                    val dialog = AddSetDialog { weight, reps ->
-                        workoutLogViewModel.workoutExercises[position].sets.add(
-                            SetEntry(
-                                weight,
-                                reps
-                            )
-                        )
-                        adapter.notifyItemChanged(position)
-                    }
-                    dialog.show(parentFragmentManager, "AddSetDialog")
-                },
-                onAddExerciseClicked = {
-                    launchAddExerciseDialog()
+        adapter = ExercisesAdapterLogger(
+            workoutLogViewModel.workoutExercises,
+            onEditExerciseClicked = { position ->
+                val exercise = workoutLogViewModel.workoutExercises[position]
+                val dialog = EditExerciseDialog(
+                    exerciseName = exercise.name,
+                    originalSets = exercise.sets
+                ) { updatedSets ->
+                    exercise.sets.clear()
+                    exercise.sets.addAll(updatedSets)
+                    adapter.notifyItemChanged(position)
                 }
-            )
+                dialog.show(parentFragmentManager, "EditSetsDialog")
+            },
+            onAddExerciseClicked = {
+                launchAddExerciseDialog()
+            }
+        )
         binding.recyclerViewExercises.adapter = adapter
     }
 
@@ -334,7 +344,12 @@ class LiftingFragment : Fragment() {
         exerciseViewModel.selectedExercise.observe(viewLifecycleOwner) { exerciseName ->
             if (exerciseName != null) {
                 // Add selected exercise to workoutExercises list
-                workoutLogViewModel.workoutExercises.add(ExerciseLog(exerciseName, mutableListOf()))
+                workoutLogViewModel.workoutExercises.add(
+                    ExerciseLog(
+                        exerciseName,
+                        mutableListOf()
+                    )
+                )
 
                 if (workoutLogViewModel.workoutExercises.size == 1) {
                     adapter.notifyDataSetChanged()
@@ -387,7 +402,11 @@ class LiftingFragment : Fragment() {
         workoutLogViewModel.workoutExercises.clear()
         binding.recyclerViewExercises.adapter?.notifyDataSetChanged()
 
-        Toast.makeText(context, "Workout Saved! Check 'Logs' to view", Toast.LENGTH_LONG).show()
+        Toast.makeText(
+            context,
+            "Workout Saved! Check 'Logs' to view",
+            Toast.LENGTH_LONG
+        ).show()
 
     }
 
@@ -400,11 +419,11 @@ data class ExerciseLog(
 )
 
 data class SetEntry(
-    val weight: Int,
-    val reps: Int
+    var weight: Int,
+    var reps: Int
 )
 
-data class WorkoutTemplate (
+data class WorkoutTemplate(
     val name: String,
     val exercises: List<String>
 )

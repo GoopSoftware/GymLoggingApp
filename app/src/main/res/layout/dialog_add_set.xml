@@ -1,10 +1,18 @@
 <?xml version="1.0" encoding="utf-8"?>
 <androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    xmlns:app="http://schemas.android.com/apk/res-auto">
-    
-    
+    android:layout_height="match_parent">
+
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/recycler_view_sets"
+        android:layout_width="0dp"
+        android:layout_height="200dp"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        />
+
     <EditText
         android:id="@+id/edit_text_weight"
         android:layout_width="match_parent"
@@ -12,18 +20,16 @@
         android:hint="weight(lbs)"
         android:inputType="number"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        />
+        app:layout_constraintTop_toBottomOf="@id/recycler_view_sets" />
 
     <EditText
         android:id="@+id/edit_text_reps"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:layout_marginTop="12dp"
         android:hint="Reps(number)"
         android:inputType="number"
-        android:layout_marginTop="12dp"
-        app:layout_constraintTop_toBottomOf="@id/edit_text_weight"
-        />
+        app:layout_constraintTop_toBottomOf="@id/edit_text_weight" />
 
     <Button
         android:id="@+id/button_add_set"
@@ -31,8 +37,8 @@
         android:layout_height="wrap_content"
         android:text="Add"
         android:textColor="@color/black"
-        app:layout_constraintTop_toBottomOf="@id/edit_text_reps"
+        app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"/>
+        app:layout_constraintTop_toBottomOf="@id/edit_text_reps" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>
