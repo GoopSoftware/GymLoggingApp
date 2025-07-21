@@ -99,6 +99,11 @@ class LiftingFragment : Fragment() {
                             true
                         }
 
+                        R.id.menu_edit_custom_exercises -> {
+                            promptEditCustomExercises()
+                            true
+                        }
+
                         else -> false
                     }
                 }
@@ -108,6 +113,10 @@ class LiftingFragment : Fragment() {
         )
         // Not required but for app safety
         binding.liftingToolbar.invalidateMenu()
+    }
+
+    private fun promptEditCustomExercises() {
+        TODO("Not yet implemented")
     }
 
     private fun showFilteredLogFilePicker(daysBack: Int) {

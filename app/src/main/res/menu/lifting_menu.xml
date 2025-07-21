@@ -17,6 +17,10 @@
         android:id="@+id/menu_load_recent_log"
         android:title="Load Previous Workout as Template"/>
 
+    <item
+        android:id="@+id/menu_edit_custom_exercises"
+        android:title="Edit Custom Exercises"/>
+
 
 
 </menu>

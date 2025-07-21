@@ -6,11 +6,16 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.widget.ArrayAdapter
 import android.widget.Toast
+import androidx.appcompat.widget.AppCompatSpinner
+
 import androidx.fragment.app.DialogFragment
 import androidx.fragment.app.activityViewModels
+import androidx.lifecycle.ViewModel
+import androidx.recyclerview.widget.LinearLayoutManager
 import com.dzl.gymloggingapp.databinding.DialogAddCustomExerciseBinding
 import com.dzl.gymloggingapp.databinding.DialogAddExerciseBinding
 import com.dzl.gymloggingapp.lifting.CustomExerciseViewModel
+import com.dzl.gymloggingapp.lifting.ExerciseListAdapter
 import com.dzl.gymloggingapp.lifting.ExerciseSelectionViewModel
 
 class AddExerciseDialog : DialogFragment() {
@@ -20,26 +25,20 @@ class AddExerciseDialog : DialogFragment() {
 
     override fun onCreateDialog(savedInstanceState: Bundle?): Dialog {
         val binding = DialogAddExerciseBinding.inflate(LayoutInflater.from(context))
-
         customExerciseViewModel.loadExercises()
 
-        val adapter = ArrayAdapter(
-            requireContext(),
-            android.R.layout.simple_spinner_item,
-            customExerciseViewModel.exerciseList
-        )
+        var sortedExercises = customExerciseViewModel.exerciseList.sortedBy { it.lowercase() }
 
-        //val exercises = listOf("Bench Press", "Dead Lift", "Squat")
-        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
-        binding.spinnerExercise.adapter = adapter
-
-        binding.buttonAddExercise.setOnClickListener {
-            val selected = binding.spinnerExercise.selectedItem.toString()
+        val adapter = ExerciseListAdapter(sortedExercises) { selected ->
             viewModel.selectedExercise(selected)
             dismiss()
         }
 
-        val customExerciseBinding = DialogAddCustomExerciseBinding.inflate(LayoutInflater.from(context))
+        binding.recyclerViewExercises.layoutManager = LinearLayoutManager(context)
+        binding.recyclerViewExercises.adapter = adapter
+
+        val customExerciseBinding =
+            DialogAddCustomExerciseBinding.inflate(LayoutInflater.from(context))
         binding.buttonCustomExercise.setOnClickListener {
             AlertDialog.Builder(requireContext())
                 .setTitle("Custom Exercise")
@@ -49,8 +48,14 @@ class AddExerciseDialog : DialogFragment() {
                     val name = customExerciseBinding.editTextCustomExercise.text.toString().trim()
                     if (name.isNotEmpty()) {
                         customExerciseViewModel.addExercise(name)
-                        adapter.notifyDataSetChanged()
-                        Toast.makeText(context, "$name added!", Toast.LENGTH_LONG ).show()
+                        sortedExercises =
+                            customExerciseViewModel.exerciseList.sortedBy { it.lowercase() }
+                        binding.recyclerViewExercises.adapter =
+                            ExerciseListAdapter(sortedExercises) { selected ->
+                                viewModel.selectedExercise(selected)
+                                dismiss()
+                            }
+                        Toast.makeText(context, "$name added!", Toast.LENGTH_LONG).show()
                     }
                 }
                 .setNegativeButton("Cancel", null)
