@@ -14,6 +14,7 @@ import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.MenuProvider
 import androidx.fragment.app.activityViewModels
+import androidx.fragment.app.commit
 import androidx.lifecycle.Lifecycle
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.dzl.gymloggingapp.databinding.FragmentLiftingBinding
@@ -116,7 +117,7 @@ class LiftingFragment : Fragment() {
     }
 
     private fun promptEditCustomExercises() {
-        TODO("Not yet implemented")
+        Toast.makeText(context, "Coming soon!", Toast.LENGTH_LONG).show()
     }
 
     private fun showFilteredLogFilePicker(daysBack: Int) {
@@ -318,6 +319,7 @@ class LiftingFragment : Fragment() {
         and the recyclerView updates just that item
          */
 
+
         // Set up the RecyclerView
         binding.recyclerViewExercises.layoutManager = LinearLayoutManager(requireContext())
 
@@ -325,16 +327,19 @@ class LiftingFragment : Fragment() {
         adapter = ExercisesAdapterLogger(
             workoutLogViewModel.workoutExercises,
             onEditExerciseClicked = { position ->
+
                 val exercise = workoutLogViewModel.workoutExercises[position]
-                val dialog = EditExerciseDialog(
-                    exerciseName = exercise.name,
-                    originalSets = exercise.sets
-                ) { updatedSets ->
-                    exercise.sets.clear()
-                    exercise.sets.addAll(updatedSets)
-                    adapter.notifyItemChanged(position)
+
+                val bundle = Bundle().apply {
+                    putString("exercise_name", exercise.name)
+                    putString("sets_json", Gson().toJson(exercise.sets))
+                    putInt("exercise_position", position)
                 }
-                dialog.show(parentFragmentManager, "EditSetsDialog")
+
+                parentFragmentManager.commit {
+                    replace(R.id.frame_content, EditExerciseFragment::class.java, bundle)
+                    addToBackStack("EditExercise")
+                }
             },
             onAddExerciseClicked = {
                 launchAddExerciseDialog()
@@ -428,8 +433,8 @@ data class ExerciseLog(
 )
 
 data class SetEntry(
-    var weight: Int,
-    var reps: Int
+    var weight: Int? = null,
+    var reps: Int? = null
 )
 
 data class WorkoutTemplate(
