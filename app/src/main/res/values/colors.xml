@@ -4,5 +4,10 @@
     <color name="white">#FFFFFFFF</color>
     <color name="lightGray">#e9e9e9</color>
     <color name="medGray">#A4A4A4</color>
+    <color name="mainText">#A4A4A4</color>
+    <color name="bottom_nav_background">#121212</color>
+    <color name="top_nav_background">#121212</color>
+    <color name="bottom_nav_selected">#FF9800</color>
+    <color name="bottom_nav_unselected">#BBBBBB</color>
 
 </resources>

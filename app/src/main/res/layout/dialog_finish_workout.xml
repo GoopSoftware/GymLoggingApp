@@ -18,29 +18,30 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
+
     <Button
+        android:layout_marginTop="16dp"
         android:id="@+id/button_confirm"
         style="@style/Widget.MaterialComponents.Button.OutlinedButton"
         android:layout_width="150dp"
         android:layout_height="75dp"
-        android:layout_marginTop="16dp"
         android:text="Confirm"
         android:textColor="@color/black"
-        app:layout_constraintEnd_toStartOf="@id/button_cancel"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/text_view_description" />
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toEndOf="@id/button_cancel"
+        app:layout_constraintTop_toBottomOf="@id/text_view_description"
+        />
 
     <Button
-        android:layout_marginTop="16dp"
         android:id="@+id/button_cancel"
         style="@style/Widget.MaterialComponents.Button.OutlinedButton"
         android:layout_width="150dp"
         android:layout_height="75dp"
+        android:layout_marginTop="16dp"
         android:text="Cancel"
         android:textColor="@color/black"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toEndOf="@id/button_confirm"
-        app:layout_constraintTop_toBottomOf="@id/text_view_description"
-        />
+        app:layout_constraintEnd_toStartOf="@id/button_confirm"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/text_view_description" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

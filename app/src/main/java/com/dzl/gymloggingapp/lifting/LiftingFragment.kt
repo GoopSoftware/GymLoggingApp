@@ -23,7 +23,6 @@ import com.dzl.gymloggingapp.lifting.dialogs.AddExerciseDialog
 import com.dzl.gymloggingapp.lifting.dialogs.FinishWorkoutDialog
 import com.dzl.gymloggingapp.logs.WorkoutLogViewModel
 import com.dzl.gymloggingapp.R
-import com.dzl.gymloggingapp.lifting.dialogs.EditExerciseDialog
 import com.google.gson.Gson
 import java.io.File
 import java.time.LocalDate
