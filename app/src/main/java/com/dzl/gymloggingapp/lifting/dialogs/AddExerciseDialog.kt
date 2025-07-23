@@ -25,20 +25,27 @@ class AddExerciseDialog : DialogFragment() {
 
     override fun onCreateDialog(savedInstanceState: Bundle?): Dialog {
         val binding = DialogAddExerciseBinding.inflate(LayoutInflater.from(context))
+        val customExerciseBinding =
+            DialogAddCustomExerciseBinding.inflate(LayoutInflater.from(context))
+
         customExerciseViewModel.loadExercises()
 
-        var sortedExercises = customExerciseViewModel.exerciseList.sortedBy { it.lowercase() }
+        var sortedExercises = customExerciseViewModel.exerciseList.value?.sortedBy { it.lowercase() } ?: emptyList()
 
-        val adapter = ExerciseListAdapter(sortedExercises) { selected ->
-            viewModel.selectedExercise(selected)
-            dismiss()
-        }
+        val adapter = ExerciseListAdapter(
+            exercises = sortedExercises.toMutableList(),
+            onExerciseSelected = { selected ->
+                viewModel.selectedExercise(selected)
+                dismiss()
+            },
+            onEdit = null,
+            onDelete = null,
+            isCustom = { false })
 
         binding.recyclerViewExercises.layoutManager = LinearLayoutManager(context)
         binding.recyclerViewExercises.adapter = adapter
 
-        val customExerciseBinding =
-            DialogAddCustomExerciseBinding.inflate(LayoutInflater.from(context))
+
         binding.buttonCustomExercise.setOnClickListener {
             AlertDialog.Builder(requireContext())
                 .setTitle("Custom Exercise")
@@ -48,13 +55,18 @@ class AddExerciseDialog : DialogFragment() {
                     val name = customExerciseBinding.editTextCustomExercise.text.toString().trim()
                     if (name.isNotEmpty()) {
                         customExerciseViewModel.addExercise(name)
-                        sortedExercises =
-                            customExerciseViewModel.exerciseList.sortedBy { it.lowercase() }
-                        binding.recyclerViewExercises.adapter =
-                            ExerciseListAdapter(sortedExercises) { selected ->
+                        sortedExercises = customExerciseViewModel.exerciseList.value?.sortedBy { it.lowercase() }?.toMutableList() ?: mutableListOf()
+                        binding.recyclerViewExercises.adapter = ExerciseListAdapter(
+                            exercises = sortedExercises.toMutableList(),
+                            onExerciseSelected = { selected ->
                                 viewModel.selectedExercise(selected)
                                 dismiss()
-                            }
+                            },
+                            onEdit = null,
+                            onDelete = null,
+                            isCustom = { false }
+                        )
+
                         Toast.makeText(context, "$name added!", Toast.LENGTH_LONG).show()
                     }
                 }
@@ -66,5 +78,6 @@ class AddExerciseDialog : DialogFragment() {
         return AlertDialog.Builder(requireContext())
             .setView(binding.root)
             .create()
+
     }
 }

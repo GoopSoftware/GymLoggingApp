@@ -1,25 +1,22 @@
 <?xml version="1.0" encoding="utf-8"?>
-
-<!-- Constraint for entire page -->
-
-<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.constraintlayout.widget.ConstraintLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
     <com.google.android.material.appbar.MaterialToolbar
-        android:id="@+id/lifting_toolbar"
+        android:id="@+id/custom_exercise_toolbar"
         android:layout_width="match_parent"
         android:layout_height="80dp"
-        android:paddingTop="12dp"
         android:background="@color/top_nav_background"
+        android:paddingTop="12dp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        app:title="Lifting"
-        app:titleTextAppearance="@style/TextAppearance.Material3.HeadlineLarge"
-        app:titleTextColor="@android:color/black" />
+        app:navigationIcon="@drawable/baseline_arrow_back_24"
+        app:navigationIconTint="@color/mainText"
+        />
 
     <TextView
         android:id="@+id/text_view_exercise_name"
@@ -27,7 +24,7 @@
         android:layout_height="wrap_content"
         android:paddingTop="12dp"
         android:layout_marginTop="24dp"
-        android:text="Lifting"
+        android:text="Edit Exercises"
         android:textColor="@color/mainText"
         android:textSize="20sp"
         android:textStyle="bold"
@@ -35,37 +32,29 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
-    <!-- End Header -->
-
-
-    <!-- Exercises -->
     <androidx.recyclerview.widget.RecyclerView
-        android:id="@+id/recycler_view_exercises"
+        android:id="@+id/recycler_custom_exercises"
         android:layout_width="0dp"
         android:layout_height="0dp"
-        android:paddingTop="16dp"
-        android:background="@color/lightGray"
-        app:layout_constraintBottom_toTopOf="@id/button_finish_workout"
-        app:layout_constraintEnd_toEndOf="parent"
+        app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
+        app:layout_constraintTop_toBottomOf="@id/custom_exercise_toolbar"
+        app:layout_constraintBottom_toTopOf="@id/button_create_new_exercise"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/lifting_toolbar"
-        tools:listitem="@layout/item_exercise_log_for_lifting_fragment"/>
-
+        app:layout_constraintEnd_toEndOf="parent"
+        android:padding="12dp" />
 
     <Button
-        android:id="@+id/button_finish_workout"
+        android:id="@+id/button_create_new_exercise"
         style="@style/Widget.MaterialComponents.Button.OutlinedButton"
-        android:layout_width="0dp"
-        android:layout_marginBottom="12dp"
-        android:layout_height="60dp"
-        android:text="Finish Workout"
-        android:backgroundTint="@color/lightGray"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="12dp"
+        android:text="Create New Exercise"
         android:textColor="@color/black"
-        app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent" />
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/recycler_custom_exercises" />
 
 
 </androidx.constraintlayout.widget.ConstraintLayout>
-
-

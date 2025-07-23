@@ -40,6 +40,7 @@ android {
 }
 
 dependencies {
+    implementation(libs.androidx.navigation.fragment.ktx)
     val fragment_version = "1.8.8"
 
     implementation("com.google.code.gson:gson:2.10.1")

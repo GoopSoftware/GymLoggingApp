@@ -341,7 +341,7 @@ class LiftingFragment : Fragment() {
                 }
             },
             onAddExerciseClicked = {
-                launchAddExerciseDialog()
+                launchAddExerciseFragment()
             },
             onAddSetClicked = { position ->
                 launchAddSetDialog(position)
@@ -377,6 +377,13 @@ class LiftingFragment : Fragment() {
 
         itemTouchHelper.attachToRecyclerView(binding.recyclerViewExercises)
 
+    }
+
+    private fun launchAddExerciseFragment() {
+        parentFragmentManager.beginTransaction()
+            .replace(R.id.frame_content, AddExerciseFragment())
+            .addToBackStack(null)
+            .commit()
     }
 
     private fun launchAddSetDialog(position: Int) {
@@ -444,11 +451,6 @@ class LiftingFragment : Fragment() {
         binding.buttonFinishWorkout.setOnClickListener {
             launchFinishWorkoutDialog()
         }
-    }
-
-    private fun launchAddExerciseDialog() {
-        val dialog = AddExerciseDialog()
-        dialog.show(parentFragmentManager, "AddExerciseDialog")
     }
 
     private fun launchFinishWorkoutDialog() {
