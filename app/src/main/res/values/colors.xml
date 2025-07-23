@@ -9,5 +9,7 @@
     <color name="top_nav_background">#121212</color>
     <color name="bottom_nav_selected">#FF9800</color>
     <color name="bottom_nav_unselected">#BBBBBB</color>
+    <color name="transparent">#00000000</color>
+
 
 </resources>

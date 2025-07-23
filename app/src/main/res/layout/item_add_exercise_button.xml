@@ -10,14 +10,18 @@
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:text="Add Exercise"
+        android:background="@drawable/text_view_outline"
         android:gravity="center"
+        android:layout_marginLeft="2dp"
+        android:layout_marginRight="2dp"
         android:textColor="@color/black"
-        android:background="?attr/selectableItemBackground"
         android:padding="16dp"
         android:textSize="20sp"
         app:lineHeight="32sp"
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent" />
+
+
 
 </androidx.constraintlayout.widget.ConstraintLayout>
