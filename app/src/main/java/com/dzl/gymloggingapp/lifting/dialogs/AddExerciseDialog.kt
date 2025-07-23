@@ -54,7 +54,14 @@ class AddExerciseDialog : DialogFragment() {
                 .setPositiveButton("Add") { _, _ ->
                     val name = customExerciseBinding.editTextCustomExercise.text.toString().trim()
                     if (name.isNotEmpty()) {
-                        customExerciseViewModel.addExercise(name)
+                        val added = customExerciseViewModel.addExercise(name)
+                        if (added) {
+                            Toast.makeText(context, "$name added!", Toast.LENGTH_SHORT).show()
+
+                        } else {
+                            Toast.makeText(context, "Exercise already exists.", Toast.LENGTH_SHORT).show()
+
+                        }
                         sortedExercises = customExerciseViewModel.exerciseList.value?.sortedBy { it.lowercase() }?.toMutableList() ?: mutableListOf()
                         binding.recyclerViewExercises.adapter = ExerciseListAdapter(
                             exercises = sortedExercises.toMutableList(),

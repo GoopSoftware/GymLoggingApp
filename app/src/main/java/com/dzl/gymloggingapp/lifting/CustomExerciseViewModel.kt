@@ -35,13 +35,33 @@ class CustomExerciseViewModel(application: Application) : AndroidViewModel(appli
         }
     }
 
-    fun addExercise(name: String) {
+    fun addExercise(name: String): Boolean {
+
+        val trimmed = name.trim()
+        val lower = trimmed.lowercase()
+
+
+        val existing = _exerciseList.value.orEmpty().map { it.lowercase() }
+        val defaultExercises = listOf("Bench Press", "Deadlift", "Squat").map { it.lowercase() }
+
+        return if (trimmed.isNotEmpty() && lower !in existing && lower !in defaultExercises) {
+            val updatedList = _exerciseList.value?.toMutableList() ?: mutableListOf()
+            updatedList.add(trimmed)
+            _exerciseList.value = updatedList.sortedBy { it.lowercase() }
+            saveExercises(updatedList)
+            true
+        } else {
+            false
+        }
+
+        /*
         val current = _exerciseList.value?.toMutableList() ?: mutableListOf()
         if (name.isNotBlank() && name !in current) {
             current.add(name)
             _exerciseList.value = current.sortedBy { it.lowercase() }
             saveExercises(current)
         }
+         */
     }
 
     fun renameExercise(oldName: String, newName: String): Boolean {

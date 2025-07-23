@@ -55,8 +55,12 @@ class CustomExerciseFragment : Fragment() {
                 .setPositiveButton("Add") { _, _ ->
                     val name = input.text.toString().trim()
                     if (name.isNotEmpty()) {
-                        customExerciseViewModel.addExercise(name)
-                        Toast.makeText(context, "$name added!", Toast.LENGTH_SHORT).show()
+                        val added = customExerciseViewModel.addExercise(name)
+                        if (added) {
+                            Toast.makeText(context, "$name added!", Toast.LENGTH_SHORT).show()
+                        } else {
+                            Toast.makeText(context, "Exercise already exists.", Toast.LENGTH_SHORT).show()
+                        }
                     } else {
                         Toast.makeText(context, "Name cannot be empty", Toast.LENGTH_SHORT).show()
                     }

@@ -349,31 +349,35 @@ class LiftingFragment : Fragment() {
         )
         binding.recyclerViewExercises.adapter = adapter
 
-        val itemTouchHelper = ItemTouchHelper(object : ItemTouchHelper.SimpleCallback(0, ItemTouchHelper.LEFT) {
-            override fun onMove(
-                recyclerView: RecyclerView,
-                viewHolder: RecyclerView.ViewHolder,
-                target: RecyclerView.ViewHolder
-            ): Boolean = false
+        val itemTouchHelper =
+            ItemTouchHelper(object : ItemTouchHelper.SimpleCallback(0, ItemTouchHelper.LEFT) {
+                override fun onMove(
+                    recyclerView: RecyclerView,
+                    viewHolder: RecyclerView.ViewHolder,
+                    target: RecyclerView.ViewHolder
+                ): Boolean = false
 
-            override fun onSwiped(viewHolder: RecyclerView.ViewHolder, direction: Int) {
-                val position = viewHolder.adapterPosition
-                if (position < workoutLogViewModel.workoutExercises.size) {
-                    workoutLogViewModel.workoutExercises.removeAt(position)
-                    adapter.notifyItemRemoved(position)
-                } else {
-                    adapter.notifyItemChanged(position)
+                override fun onSwiped(viewHolder: RecyclerView.ViewHolder, direction: Int) {
+                    val position = viewHolder.adapterPosition
+                    if (position < workoutLogViewModel.workoutExercises.size) {
+                        workoutLogViewModel.workoutExercises.removeAt(position)
+                        adapter.notifyItemRemoved(position)
+                    } else {
+                        adapter.notifyItemChanged(position)
+                    }
                 }
-            }
 
-            override fun getSwipeDirs(
-                recyclerView: RecyclerView,
-                viewHolder: RecyclerView.ViewHolder
-            ): Int {
-                return if (viewHolder is ExercisesAdapterLogger.AddButtonViewHolder) 0 else super.getSwipeDirs(recyclerView, viewHolder)
-            }
+                override fun getSwipeDirs(
+                    recyclerView: RecyclerView,
+                    viewHolder: RecyclerView.ViewHolder
+                ): Int {
+                    return if (viewHolder is ExercisesAdapterLogger.AddButtonViewHolder) 0 else super.getSwipeDirs(
+                        recyclerView,
+                        viewHolder
+                    )
+                }
 
-        })
+            })
 
         itemTouchHelper.attachToRecyclerView(binding.recyclerViewExercises)
 
@@ -400,23 +404,23 @@ class LiftingFragment : Fragment() {
         AlertDialog.Builder(context)
             .setTitle("Add Set to ${exercise.name}")
             .setView(binding.root)
-            .setPositiveButton("Add") {_, _ ->
+            .setPositiveButton("Add") { _, _ ->
                 val weight = binding.editTextWeight.text.toString().toIntOrNull()
                 val reps = binding.editTextReps.text.toString().toIntOrNull()
 
                 if (weight != null && reps != null) {
-                  val set = SetEntry(weight, reps)
-                  exercise.sets.add(set)
-                  adapter.notifyItemChanged(position)
+                    val set = SetEntry(weight, reps)
+                    exercise.sets.add(set)
+                    adapter.notifyItemChanged(position)
                 } else {
-                    Toast.makeText(context, "Enter valid weight and reps", Toast.LENGTH_SHORT).show()
+                    Toast.makeText(context, "Enter valid weight and reps", Toast.LENGTH_SHORT)
+                        .show()
                 }
             }
             .setNegativeButton("Cancel", null)
             .show()
 
     }
-
 
 
     private fun observeExerciseSelection() {
@@ -428,13 +432,25 @@ class LiftingFragment : Fragment() {
          */
         exerciseViewModel.selectedExercise.observe(viewLifecycleOwner) { exerciseName ->
             if (exerciseName != null) {
-                // Add selected exercise to workoutExercises list
-                workoutLogViewModel.workoutExercises.add(
-                    ExerciseLog(
-                        exerciseName,
-                        mutableListOf()
+                val alreadyExists = workoutLogViewModel.workoutExercises.any {
+                    it.name.equals(exerciseName, ignoreCase = true)
+                }
+
+                if (alreadyExists) {
+                    Toast.makeText(
+                        context,
+                        "$exerciseName is already in your workout.",
+                        Toast.LENGTH_SHORT
+                    ).show()
+                } else {
+                    // Add selected exercise to workoutExercises list
+                    workoutLogViewModel.workoutExercises.add(
+                        ExerciseLog(
+                            exerciseName,
+                            mutableListOf()
+                        )
                     )
-                )
+                }
 
                 if (workoutLogViewModel.workoutExercises.size == 1) {
                     adapter.notifyDataSetChanged()
