@@ -25,6 +25,7 @@ import com.dzl.gymloggingapp.lifting.dialogs.AddExerciseDialog
 import com.dzl.gymloggingapp.lifting.dialogs.FinishWorkoutDialog
 import com.dzl.gymloggingapp.logs.WorkoutLogViewModel
 import com.dzl.gymloggingapp.R
+import com.dzl.gymloggingapp.databinding.DialogAddSetBinding
 import com.google.gson.Gson
 import java.io.File
 import java.time.LocalDate
@@ -328,15 +329,12 @@ class LiftingFragment : Fragment() {
         adapter = ExercisesAdapterLogger(
             workoutLogViewModel.workoutExercises,
             onEditExerciseClicked = { position ->
-
                 val exercise = workoutLogViewModel.workoutExercises[position]
-
                 val bundle = Bundle().apply {
                     putString("exercise_name", exercise.name)
                     putString("sets_json", Gson().toJson(exercise.sets))
                     putInt("exercise_position", position)
                 }
-
                 parentFragmentManager.commit {
                     replace(R.id.frame_content, EditExerciseFragment::class.java, bundle)
                     addToBackStack("EditExercise")
@@ -344,6 +342,9 @@ class LiftingFragment : Fragment() {
             },
             onAddExerciseClicked = {
                 launchAddExerciseDialog()
+            },
+            onAddSetClicked = { position ->
+                launchAddSetDialog(position)
             }
         )
         binding.recyclerViewExercises.adapter = adapter
@@ -375,6 +376,37 @@ class LiftingFragment : Fragment() {
         })
 
         itemTouchHelper.attachToRecyclerView(binding.recyclerViewExercises)
+
+    }
+
+    private fun launchAddSetDialog(position: Int) {
+        val context = requireContext()
+        val exercise = workoutLogViewModel.workoutExercises[position]
+
+        val binding = DialogAddSetBinding.inflate(layoutInflater)
+
+        exercise.sets.lastOrNull()?.let { lastSet ->
+            binding.editTextWeight.setText(lastSet.weight?.toString() ?: "")
+            binding.editTextReps.setText(lastSet.reps?.toString() ?: "")
+        }
+
+        AlertDialog.Builder(context)
+            .setTitle("Add Set to ${exercise.name}")
+            .setView(binding.root)
+            .setPositiveButton("Add") {_, _ ->
+                val weight = binding.editTextWeight.text.toString().toIntOrNull()
+                val reps = binding.editTextReps.text.toString().toIntOrNull()
+
+                if (weight != null && reps != null) {
+                  val set = SetEntry(weight, reps)
+                  exercise.sets.add(set)
+                  adapter.notifyItemChanged(position)
+                } else {
+                    Toast.makeText(context, "Enter valid weight and reps", Toast.LENGTH_SHORT).show()
+                }
+            }
+            .setNegativeButton("Cancel", null)
+            .show()
 
     }
 

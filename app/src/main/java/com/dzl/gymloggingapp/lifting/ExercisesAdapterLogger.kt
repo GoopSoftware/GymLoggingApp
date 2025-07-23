@@ -11,7 +11,8 @@ import com.dzl.gymloggingapp.databinding.ItemExerciseLogForLogsDialogBinding
 class ExercisesAdapterLogger(
     private val exercises: List<ExerciseLog>,
     private val onEditExerciseClicked: (position: Int) -> Unit,
-    private val onAddExerciseClicked: () -> Unit
+    private val onAddExerciseClicked: () -> Unit,
+    private val onAddSetClicked: (position: Int) -> Unit
 ) : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
 
     private val TYPE_EXERCISE = 0
@@ -33,7 +34,8 @@ class ExercisesAdapterLogger(
         return if (viewType == TYPE_EXERCISE) {
             val binding = ItemExerciseLogForLiftingFragmentBinding.inflate(
                 LayoutInflater.from(
-                parent.context),
+                    parent.context
+                ),
                 parent,
                 false
             )
@@ -41,7 +43,8 @@ class ExercisesAdapterLogger(
         } else {
             val binding = ItemAddExerciseButtonBinding.inflate(
                 LayoutInflater.from(
-                parent.context),
+                    parent.context
+                ),
                 parent,
                 false
             )
@@ -58,13 +61,19 @@ class ExercisesAdapterLogger(
                 //--------------------------------------------------------------------------------
                 // This is where we will create the logic to display the previous weeks sets/reps
                 //--------------------------------------------------------------------------------
-                "Press to add a set"
+                "🟢 Tap to add set   ✏️ Hold to edit"
             } else {
                 exercise.sets.joinToString { "${it.weight}x${it.reps}" }
             }
 
+            // Normal tap to add set
             holder.itemView.setOnClickListener {
+                onAddSetClicked(position)
+            }
+
+            holder.itemView.setOnLongClickListener {
                 onEditExerciseClicked(position)
+                true
             }
 
         } else if (holder is AddButtonViewHolder) {

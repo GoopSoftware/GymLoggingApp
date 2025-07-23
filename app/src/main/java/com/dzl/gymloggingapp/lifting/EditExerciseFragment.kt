@@ -48,7 +48,6 @@ class EditExerciseFragment : Fragment() {
 
         binding.buttonSaveChanges.setOnClickListener {
             val updatedSets = collectSetInputs()
-            if (updatedSets.isEmpty()) return@setOnClickListener
 
             val exerciseName = arguments?.getString("exercise_name") ?: return@setOnClickListener
 
@@ -99,9 +98,11 @@ class EditExerciseFragment : Fragment() {
             val reps = itemBinding.editTextReps.text.toString().trim().toIntOrNull()
 
             if (weight == null || reps == null) {
+                continue
+            } else if (weight == null || reps == null) {
                 Toast.makeText(
                     requireContext(),
-                    "All fields must be filled before saving.",
+                    "Both weight and reps must be filled or left blank.",
                     Toast.LENGTH_SHORT
                 ).show()
                 return emptyList()
