@@ -65,7 +65,6 @@ class AddExerciseDialog : DialogFragment() {
 
         return AlertDialog.Builder(requireContext())
             .setView(binding.root)
-            .setTitle("Add Exercise")
             .create()
     }
 }

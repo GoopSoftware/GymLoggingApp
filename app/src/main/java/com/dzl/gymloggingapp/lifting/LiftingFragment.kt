@@ -16,7 +16,9 @@ import androidx.core.view.MenuProvider
 import androidx.fragment.app.activityViewModels
 import androidx.fragment.app.commit
 import androidx.lifecycle.Lifecycle
+import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.RecyclerView
 import com.dzl.gymloggingapp.databinding.FragmentLiftingBinding
 import com.dzl.gymloggingapp.dataclasses.WorkoutSession
 import com.dzl.gymloggingapp.lifting.dialogs.AddExerciseDialog
@@ -345,7 +347,38 @@ class LiftingFragment : Fragment() {
             }
         )
         binding.recyclerViewExercises.adapter = adapter
+
+        val itemTouchHelper = ItemTouchHelper(object : ItemTouchHelper.SimpleCallback(0, ItemTouchHelper.LEFT) {
+            override fun onMove(
+                recyclerView: RecyclerView,
+                viewHolder: RecyclerView.ViewHolder,
+                target: RecyclerView.ViewHolder
+            ): Boolean = false
+
+            override fun onSwiped(viewHolder: RecyclerView.ViewHolder, direction: Int) {
+                val position = viewHolder.adapterPosition
+                if (position < workoutLogViewModel.workoutExercises.size) {
+                    workoutLogViewModel.workoutExercises.removeAt(position)
+                    adapter.notifyItemRemoved(position)
+                } else {
+                    adapter.notifyItemChanged(position)
+                }
+            }
+
+            override fun getSwipeDirs(
+                recyclerView: RecyclerView,
+                viewHolder: RecyclerView.ViewHolder
+            ): Int {
+                return if (viewHolder is ExercisesAdapterLogger.AddButtonViewHolder) 0 else super.getSwipeDirs(recyclerView, viewHolder)
+            }
+
+        })
+
+        itemTouchHelper.attachToRecyclerView(binding.recyclerViewExercises)
+
     }
+
+
 
     private fun observeExerciseSelection() {
         /*
