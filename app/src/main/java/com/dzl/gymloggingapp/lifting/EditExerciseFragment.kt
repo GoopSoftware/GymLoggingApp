@@ -4,7 +4,6 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.EditText
 import android.widget.Toast
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
@@ -12,6 +11,7 @@ import com.dzl.gymloggingapp.databinding.FragmentEditExerciseBinding
 import com.dzl.gymloggingapp.databinding.ItemAddNewSetBinding
 import com.dzl.gymloggingapp.databinding.ItemEditSetBinding
 import com.dzl.gymloggingapp.logs.WorkoutLogViewModel
+import com.dzl.gymloggingapp.utils.smartFormat
 import com.google.gson.Gson
 
 class EditExerciseFragment : Fragment() {
@@ -37,17 +37,18 @@ class EditExerciseFragment : Fragment() {
         val sets = Gson().fromJson(setsJson, Array<SetEntry>::class.java).toMutableList()
 
         currentSets.addAll(sets)
+        displayAllEditableSets()
+        setUpOnClickListeners()
 
+    }
 
-        renderAllSetViews()
-
-
+    private fun setUpOnClickListeners() {
         binding.editExerciseToolbar.setNavigationOnClickListener {
             requireActivity().onBackPressedDispatcher.onBackPressed()
         }
 
         binding.buttonSaveChanges.setOnClickListener {
-            val updatedSets = collectSetInputs()
+            val updatedSets = gatherUserInputForSets()
 
             val exerciseName = arguments?.getString("exercise_name") ?: return@setOnClickListener
 
@@ -59,21 +60,20 @@ class EditExerciseFragment : Fragment() {
                 requireActivity().onBackPressedDispatcher.onBackPressed()
             }
         }
-
     }
 
-    private fun renderAllSetViews() {
+    private fun displayAllEditableSets() {
         binding.linearLayoutSets.removeAllViews()
 
         currentSets.forEachIndexed { index, setEntry ->
             val setBinding = ItemEditSetBinding.inflate(layoutInflater)
 
-            setBinding.editTextWeight.setText(setEntry.weight?.toString() ?: "")
-            setBinding.editTextReps.setText(setEntry.reps?.toString() ?: "")
+            setBinding.editTextWeight.setText(setEntry.weight?.smartFormat())
+            setBinding.editTextReps.setText(setEntry.reps?.smartFormat())
 
             setBinding.buttonDeleteSet.setOnClickListener {
                 currentSets.removeAt(index)
-                renderAllSetViews()
+                displayAllEditableSets()
             }
             binding.linearLayoutSets.addView(setBinding.root)
         }
@@ -81,25 +81,23 @@ class EditExerciseFragment : Fragment() {
         val addBinding = ItemAddNewSetBinding.inflate(layoutInflater)
         addBinding.textViewAddNewSet.setOnClickListener {
             currentSets.add(SetEntry(null, null))
-            renderAllSetViews()
+            displayAllEditableSets()
         }
         binding.linearLayoutSets.addView(addBinding.root)
 
     }
 
-    private fun collectSetInputs(): List<SetEntry> {
+    private fun gatherUserInputForSets(): List<SetEntry> {
         val updatedSets = mutableListOf<SetEntry>()
 
         for (i in 0 until binding.linearLayoutSets.childCount - 1) {
             val child = binding.linearLayoutSets.getChildAt(i)
             val itemBinding = ItemEditSetBinding.bind(child)
 
-            val weight = itemBinding.editTextWeight.text.toString().trim().toIntOrNull()
-            val reps = itemBinding.editTextReps.text.toString().trim().toIntOrNull()
+            val weight = itemBinding.editTextWeight.text.toString().trim().toFloatOrNull()
+            val reps = itemBinding.editTextReps.text.toString().trim().toFloatOrNull()
 
             if (weight == null || reps == null) {
-                continue
-            } else if (weight == null || reps == null) {
                 Toast.makeText(
                     requireContext(),
                     "Both weight and reps must be filled or left blank.",

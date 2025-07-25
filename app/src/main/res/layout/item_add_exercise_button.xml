@@ -5,23 +5,22 @@
     android:layout_height="match_parent">
 
     <TextView
-        android:layout_marginTop="12dp"
         android:id="@+id/text_view_add_exercise"
-        android:layout_width="0dp"
+        android:layout_width="48dp"
         android:layout_height="wrap_content"
-        android:text="Add Exercise"
-        android:background="@drawable/text_view_outline"
+        android:layout_marginTop="12dp"
+        android:background="@drawable/ripple_add_button"
+        android:elevation="6dp"
         android:gravity="center"
-        android:layout_marginLeft="2dp"
-        android:layout_marginRight="2dp"
-        android:textColor="@color/black"
-        android:padding="16dp"
-        android:textSize="20sp"
-        app:lineHeight="32sp"
-        app:layout_constraintTop_toTopOf="parent"
+        android:text="+"
+        android:textColor="@color/white"
+        android:clickable="true"
+        android:focusable="true"
+        android:textSize="40sp"
+        app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent" />
-
+        app:layout_constraintTop_toTopOf="parent"
+        app:lineHeight="32sp" />
 
 
 </androidx.constraintlayout.widget.ConstraintLayout>
