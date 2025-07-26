@@ -1,6 +1,7 @@
 data class ExercisePreset(
     val name: String,
-    val primaryMuscleGroup: List<String>
+    val primaryMuscleGroup: List<String>,
+    var isFavorite: Boolean = false
 )
 
 object DefaultExercises {

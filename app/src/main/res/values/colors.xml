@@ -20,5 +20,9 @@
     <color name="white">#FFFFFFFF</color>
     <color name="lightGray">#e9e9e9</color>
     <color name="medGray">#A4A4A4</color>
+    <color name="darkGray">#1E1E1E</color>
+
+
+
 
 </resources>

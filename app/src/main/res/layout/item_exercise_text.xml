@@ -4,8 +4,8 @@
     android:layout_height="wrap_content"
     android:layout_marginTop="2dp"
     android:background="@color/card_background"
-    android:padding="12dp"
-    >
+    android:elevation="12dp"
+    android:padding="12dp">
 
     <TextView
         android:id="@+id/text_view_exercise"
@@ -13,14 +13,33 @@
         android:layout_height="wrap_content"
         android:ellipsize="end"
         android:maxLines="1"
+        android:paddingLeft="2dp"
         android:text="Exercise Name"
         android:textColor="@color/mainText"
         android:textSize="16sp"
         app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toStartOf="@id/button_edit"
+        app:layout_constraintEnd_toStartOf="@id/button_delete"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
         app:layout_goneMarginEnd="8dp" />
+
+
+    <ImageButton
+        android:id="@+id/button_favorite"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:background="?attr/selectableItemBackgroundBorderless"
+        android:contentDescription="Delete"
+        android:paddingLeft="2dp"
+        android:paddingBottom="2dp"
+        android:paddingTop="2dp"
+        android:src="@drawable/baseline_favorite_border_24"
+        android:visibility="visible"
+        app:layout_constraintBottom_toBottomOf="parent"
+
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:tint="@color/lightGray" />
 
     <ImageButton
         android:id="@+id/button_edit"
@@ -29,23 +48,27 @@
         android:layout_marginEnd="4dp"
         android:background="?attr/selectableItemBackgroundBorderless"
         android:contentDescription="Edit"
-        android:src="@drawable/icons8_edit_24"
-        android:visibility="gone"
-        app:layout_constraintBottom_toBottomOf="@id/text_view_exercise"
-        app:layout_constraintEnd_toStartOf="@id/button_delete"
-        app:layout_constraintStart_toEndOf="@id/text_view_exercise"
-        app:layout_constraintTop_toTopOf="@id/text_view_exercise" />
+        android:padding="2dp"
+        android:src="@drawable/outline_edit_24"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toStartOf="@id/button_favorite"
+        app:layout_constraintTop_toTopOf="parent"
+        app:tint="@color/lightGray" />
 
     <ImageButton
         android:id="@+id/button_delete"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+
         android:background="?attr/selectableItemBackgroundBorderless"
         android:contentDescription="Delete"
-        android:src="@drawable/icons8_delete_24"
-        android:visibility="gone"
-        app:layout_constraintBottom_toBottomOf="@id/button_edit"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toEndOf="@id/button_edit"
-        app:layout_constraintTop_toTopOf="@id/button_edit" />
+        android:padding="2dp"
+        android:src="@drawable/outline_delete_24"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toStartOf="@id/button_edit"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintStart_toEndOf="@id/text_view_exercise"
+        app:tint="@color/lightGray" />
+
+
 </androidx.constraintlayout.widget.ConstraintLayout>

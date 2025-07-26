@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <style name="CustomChipStyle" parent="Widget.MaterialComponents.Chip.Filter">
+        <!-- Unselected chip background -->
+        <item name="chipBackgroundColor">@color/darkGray</item>
+
+        <!-- Orange stroke (always visible) -->
+        <item name="chipStrokeColor">@color/bottom_nav_selected</item>
+        <item name="chipStrokeWidth">1dp</item>
+
+        <!-- Text color -->
+        <item name="android:textColor">@android:color/white</item>
+
+        <!-- Ripple color -->
+        <item name="rippleColor">@color/bottom_nav_selected</item>
+
+        <item name="checkedIconVisible">false</item>
+    </style>
+
+
+
+
+</resources>

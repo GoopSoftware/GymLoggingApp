@@ -2,8 +2,8 @@
 <androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
-    android:background="@color/background"
-    android:layout_height="match_parent">
+    android:layout_height="match_parent"
+    android:background="@color/background">
 
     <com.google.android.material.appbar.MaterialToolbar
         android:id="@+id/add_exercise_toolbar"
@@ -35,11 +35,15 @@
         android:id="@+id/edit_text_search_bar"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:layout_margin="4dp"
+
+        android:background="@drawable/search_bar_bg"
         android:hint="Search exercises..."
-        android:padding="8dp"
         android:imeOptions="actionSearch"
         android:inputType="text"
-        android:background="@drawable/search_bar_bg"
+        android:padding="8dp"
+        android:textColor="@color/lightGray"
+        android:textColorHint="@color/lightGray"
         app:layout_constraintBottom_toTopOf="@id/scroll_view_filter"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
@@ -47,6 +51,8 @@
 
 
     <HorizontalScrollView
+        android:paddingLeft="4dp"
+        android:paddingRight="4dp"
         android:id="@+id/scroll_view_filter"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -61,12 +67,15 @@
             android:id="@+id/filter_chip_group"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:padding="8dp"
-            app:chipSpacingVertical="4dp"
+            android:padding="4dp"
+
             app:chipSpacingHorizontal="6dp"
+            app:chipSpacingVertical="4dp"
             app:selectionRequired="true"
             app:singleLine="true"
+
             app:singleSelection="true" />
+
 
     </HorizontalScrollView>
 
@@ -76,6 +85,7 @@
         android:layout_width="0dp"
         android:layout_height="0dp"
         android:padding="4dp"
+        android:layout_margin="4dp"
         app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
         app:layout_constraintBottom_toTopOf="@id/button_custom_exercise"
         app:layout_constraintEnd_toEndOf="parent"
@@ -89,8 +99,8 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginTop="12dp"
-        android:text="Edit Exercises"
         android:backgroundTint="@color/bottom_nav_selected"
+        android:text="Custom Exercises"
 
         android:textColor="@color/mainText"
         app:layout_constraintBottom_toBottomOf="parent"

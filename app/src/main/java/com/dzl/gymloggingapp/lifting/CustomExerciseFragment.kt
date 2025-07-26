@@ -1,5 +1,6 @@
 package com.dzl.gymloggingapp.lifting
 
+import ExercisePreset
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -43,7 +44,8 @@ class CustomExerciseFragment : Fragment() {
         customExerciseViewModel.loadExercises()
 
         customExerciseViewModel.exerciseList.observe(viewLifecycleOwner) { list ->
-            adapter.updateExercises(list)
+            val presets = list.map { ExercisePreset(it, listOf("Custom")) }
+            adapter.updateExercises(presets)
         }
 
         binding.buttonCreateNewExercise.setOnClickListener {
@@ -54,16 +56,34 @@ class CustomExerciseFragment : Fragment() {
                 .setView(input)
                 .setPositiveButton("Add") { _, _ ->
                     val name = input.text.toString().trim()
-                    if (name.isNotEmpty()) {
-                        val added = customExerciseViewModel.addExercise(name)
-                        if (added) {
-                            Toast.makeText(context, "$name added!", Toast.LENGTH_SHORT).show()
-                        } else {
-                            Toast.makeText(context, "Exercise already exists.", Toast.LENGTH_SHORT).show()
-                        }
-                    } else {
+
+                    if (name.isEmpty()) {
                         Toast.makeText(context, "Name cannot be empty", Toast.LENGTH_SHORT).show()
+                        return@setPositiveButton
                     }
+
+                    val alreadyExists = (customExerciseViewModel.exerciseList.value?.any {
+                        it.equals(
+                            name,
+                            true
+                        )
+                    } == true) ||
+                            DefaultExercises.list.any { it.name.equals(name, true) }
+
+                    if (alreadyExists) {
+                        Toast.makeText(context, "$name already exists.", Toast.LENGTH_SHORT).show()
+                        return@setPositiveButton
+                    }
+
+
+                    val added = customExerciseViewModel.addExercise(name)
+                    if (added) {
+                        Toast.makeText(context, "$name added!", Toast.LENGTH_SHORT).show()
+                    } else {
+                        Toast.makeText(context, "Exercise already exists.", Toast.LENGTH_SHORT)
+                            .show()
+                    }
+
                 }
                 .setNegativeButton("Cancel", null)
                 .show()
