@@ -567,11 +567,6 @@ class LiftingFragment : Fragment() {
 
         val binding = DialogAddSetBinding.inflate(layoutInflater)
 
-        exercise.sets.lastOrNull()?.let { lastSet ->
-            binding.editTextWeight.setText(lastSet.weight?.smartFormat())
-            binding.editTextReps.setText(lastSet.reps?.smartFormat())
-        }
-
         AlertDialog.Builder(context)
             .setTitle("Add Set to ${exercise.name}")
             .setView(binding.root)

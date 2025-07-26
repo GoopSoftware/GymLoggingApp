@@ -1,88 +1,84 @@
-package com.dzl.gymloggingapp.utils
-
 data class ExercisePreset(
     val name: String,
-    val primaryMuscleGroup: String
+    val primaryMuscleGroup: List<String>
 )
 
 object DefaultExercises {
     val list = listOf(
         // Chest
-        ExercisePreset("Bench Press", "Chest"),
-        ExercisePreset("Incline Bench Press", "Chest"),
-        ExercisePreset("Decline Bench Press", "Chest"),
-        ExercisePreset("Dumbbell Bench Press", "Chest"),
-        ExercisePreset("Chest Fly", "Chest"),
-        ExercisePreset("Cable Crossover", "Chest"),
+        ExercisePreset("Bench Press", listOf("Chest", "Triceps", "Shoulders")),
+        ExercisePreset("Incline Bench Press", listOf("Chest", "Triceps", "Shoulders")),
+        ExercisePreset("Decline Bench Press", listOf("Chest", "Triceps")),
+        ExercisePreset("Dumbbell Bench Press", listOf("Chest", "Triceps", "Shoulders")),
+        ExercisePreset("Chest Fly", listOf("Chest")),
+        ExercisePreset("Cable Crossover", listOf("Chest")),
 
         // Shoulders
-        ExercisePreset("Overhead Press", "Shoulders"),
-        ExercisePreset("Dumbbell Shoulder Press", "Shoulders"),
-        ExercisePreset("Arnold Press", "Shoulders"),
-        ExercisePreset("Lateral Raise", "Shoulders"),
-        ExercisePreset("Front Raise", "Shoulders"),
-        ExercisePreset("Face Pull", "Shoulders"),
+        ExercisePreset("Overhead Press", listOf("Shoulders", "Triceps")),
+        ExercisePreset("Dumbbell Shoulder Press", listOf("Shoulders", "Triceps")),
+        ExercisePreset("Arnold Press", listOf("Shoulders", "Triceps")),
+        ExercisePreset("Lateral Raise", listOf("Shoulders")),
+        ExercisePreset("Front Raise", listOf("Shoulders")),
+        ExercisePreset("Face Pull", listOf("Rear Delts", "Upper Back")),
 
         // Back
-        ExercisePreset("Barbell Row", "Back"),
-        ExercisePreset("Dumbbell Row", "Back"),
-        ExercisePreset("Seated Cable Row", "Back"),
-        ExercisePreset("Lat Pulldown", "Back"),
-        ExercisePreset("Pull-up", "Back"),
-        ExercisePreset("Chin-up", "Back"),
-        ExercisePreset("T-Bar Row", "Back"),
+        ExercisePreset("Barbell Row", listOf("Back", "Lats")),
+        ExercisePreset("Dumbbell Row", listOf("Back", "Lats")),
+        ExercisePreset("Seated Cable Row", listOf("Back", "Lats")),
+        ExercisePreset("Lat Pulldown", listOf("Lats", "Back", "Biceps")),
+        ExercisePreset("Pull-up", listOf("Lats", "Back", "Biceps")),
+        ExercisePreset("Chin-up", listOf("Lats", "Back", "Biceps")),
+        ExercisePreset("T-Bar Row", listOf("Back", "Lats")),
 
         // Biceps
-        ExercisePreset("Bicep Curl", "Biceps"),
-        ExercisePreset("Hammer Curl", "Biceps"),
-        ExercisePreset("Concentration Curl", "Biceps"),
-        ExercisePreset("Preacher Curl", "Biceps"),
+        ExercisePreset("Bicep Curl", listOf("Biceps")),
+        ExercisePreset("Hammer Curl", listOf("Biceps", "Forearms")),
+        ExercisePreset("Concentration Curl", listOf("Biceps")),
+        ExercisePreset("Preacher Curl", listOf("Biceps")),
 
         // Triceps
-        ExercisePreset("Dips", "Triceps"),
-        ExercisePreset("Tricep Pushdown", "Triceps"),
-        ExercisePreset("Overhead Tricep Extension", "Triceps"),
-        ExercisePreset("Skullcrusher", "Triceps"),
+        ExercisePreset("Dips", listOf("Triceps", "Chest", "Shoulders")),
+        ExercisePreset("Tricep Pushdown", listOf("Triceps")),
+        ExercisePreset("Overhead Tricep Extension", listOf("Triceps")),
+        ExercisePreset("Skullcrusher", listOf("Triceps")),
 
         // Legs
-        ExercisePreset("Squat", "Legs"),
-        ExercisePreset("Front Squat", "Legs"),
-        ExercisePreset("Goblet Squat", "Legs"),
-        ExercisePreset("Leg Press", "Legs"),
-        ExercisePreset("Walking Lunge", "Legs"),
-        ExercisePreset("Bulgarian Split Squat", "Legs"),
-        ExercisePreset("Step-Up", "Legs"),
+        ExercisePreset("Squat", listOf("Quads", "Glutes", "Hamstrings")),
+        ExercisePreset("Front Squat", listOf("Quads", "Glutes")),
+        ExercisePreset("Goblet Squat", listOf("Quads", "Glutes")),
+        ExercisePreset("Leg Press", listOf("Quads", "Glutes", "Hamstrings")),
+        ExercisePreset("Walking Lunge", listOf("Quads", "Glutes", "Hamstrings")),
+        ExercisePreset("Bulgarian Split Squat", listOf("Quads", "Glutes")),
+        ExercisePreset("Step-Up", listOf("Quads", "Glutes")),
 
         // Hamstrings / Glutes
-        ExercisePreset("Romanian Deadlift", "Hamstrings"),
-        ExercisePreset("Sumo Deadlift", "Hamstrings"),
-        ExercisePreset("Conventional Deadlift", "Hamstrings"),
-        ExercisePreset("Hip Thrust", "Glutes"),
-        ExercisePreset("Glute Bridge", "Glutes"),
-        ExercisePreset("Leg Curl", "Hamstrings"),
+        ExercisePreset("Romanian Deadlift", listOf("Hamstrings", "Glutes", "Back")),
+        ExercisePreset("Sumo Deadlift", listOf("Hamstrings", "Glutes", "Back")),
+        ExercisePreset("Conventional Deadlift", listOf("Hamstrings", "Glutes", "Back")),
+        ExercisePreset("Hip Thrust", listOf("Glutes", "Hamstrings")),
+        ExercisePreset("Glute Bridge", listOf("Glutes", "Hamstrings")),
+        ExercisePreset("Leg Curl", listOf("Hamstrings")),
 
         // Quads
-        ExercisePreset("Leg Extension", "Quads"),
+        ExercisePreset("Leg Extension", listOf("Quads")),
 
         // Calves
-        ExercisePreset("Calf Raise", "Calves"),
-        ExercisePreset("Seated Calf Raise", "Calves"),
+        ExercisePreset("Calf Raise", listOf("Calves")),
+        ExercisePreset("Seated Calf Raise", listOf("Calves")),
 
         // Core
-        ExercisePreset("Plank", "Core"),
-        ExercisePreset("Cable Crunch", "Core"),
-        ExercisePreset("Hanging Leg Raise", "Core"),
-        ExercisePreset("Russian Twist", "Core"),
-        ExercisePreset("Ab Wheel Rollout", "Core"),
+        ExercisePreset("Plank", listOf("Core")),
+        ExercisePreset("Cable Crunch", listOf("Core")),
+        ExercisePreset("Hanging Leg Raise", listOf("Core")),
+        ExercisePreset("Russian Twist", listOf("Core", "Obliques")),
+        ExercisePreset("Ab Wheel Rollout", listOf("Core")),
 
         // Full Body / Olympic
-        ExercisePreset("Power Clean", "Full Body"),
-        ExercisePreset("Snatch", "Full Body"),
-        ExercisePreset("Push Press", "Full Body"),
-        ExercisePreset("Thruster", "Full Body"),
-        ExercisePreset("Farmer's Carry", "Full Body"),
-        ExercisePreset("Kettlebell Swing", "Full Body")
+        ExercisePreset("Power Clean", listOf("Full Body")),
+        ExercisePreset("Snatch", listOf("Full Body")),
+        ExercisePreset("Push Press", listOf("Full Body", "Shoulders", "Triceps")),
+        ExercisePreset("Thruster", listOf("Full Body", "Quads", "Shoulders")),
+        ExercisePreset("Farmer's Carry", listOf("Full Body", "Forearms", "Traps")),
+        ExercisePreset("Kettlebell Swing", listOf("Full Body", "Glutes", "Hamstrings"))
     )
 }
-
-
