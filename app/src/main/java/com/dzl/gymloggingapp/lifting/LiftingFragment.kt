@@ -159,80 +159,132 @@ class LiftingFragment : Fragment() {
         // Make this into a function so we can un clutter setUpExerciseRecyclerView()
         // Start
         val itemTouchHelper =
-            ItemTouchHelper(object : ItemTouchHelper.SimpleCallback(0, ItemTouchHelper.LEFT or ItemTouchHelper.RIGHT) {
-                override fun onMove(
-                    recyclerView: RecyclerView,
-                    viewHolder: RecyclerView.ViewHolder,
-                    target: RecyclerView.ViewHolder
-                ): Boolean = false
+            ItemTouchHelper(
+                object :
+                    ItemTouchHelper.SimpleCallback(
+                        0,
+                        ItemTouchHelper.LEFT or ItemTouchHelper.RIGHT
+                    ) {
+                    override fun onMove(
+                        recyclerView: RecyclerView,
+                        viewHolder: RecyclerView.ViewHolder,
+                        target: RecyclerView.ViewHolder
+                    ): Boolean = false
 
-                override fun onSwiped(viewHolder: RecyclerView.ViewHolder, direction: Int) {
-                    val position = viewHolder.adapterPosition
-                    if (position < workoutLogViewModel.workoutExercises.size) {
-                        workoutLogViewModel.workoutExercises.removeAt(position)
-                        adapter.notifyItemRemoved(position)
-                        Toast.makeText(context, "Exercise Removed", Toast.LENGTH_SHORT).show()
-                    } else {
-                        adapter.notifyItemChanged(position)
+                    override fun onSwiped(viewHolder: RecyclerView.ViewHolder, direction: Int) {
+                        val position = viewHolder.adapterPosition
+
+                        if (viewHolder is ExercisesAdapterLogger.AddButtonViewHolder) {
+                            adapter.notifyItemChanged(position)
+                            return
+                        }
+
+                        if (direction == ItemTouchHelper.LEFT) {
+                            workoutLogViewModel.workoutExercises.removeAt(position)
+                            adapter.notifyItemRemoved(position)
+                            Toast.makeText(context, "Exercise Removed", Toast.LENGTH_SHORT).show()
+                        } else if (direction == ItemTouchHelper.RIGHT) {
+                            val exercise = workoutLogViewModel.workoutExercises[position]
+                            val bundle = Bundle().apply {
+                                putString("exercise_name", exercise.name)
+                                putString("sets_json", Gson().toJson(exercise.sets))
+                                putInt("exercise_position", position)
+                            }
+                            parentFragmentManager.commit {
+                                replace(
+                                    R.id.frame_content,
+                                    EditExerciseFragment::class.java,
+                                    bundle
+                                )
+                                addToBackStack("EditExercise")
+                            }
+
+                            adapter.notifyItemChanged(position)
+                        }
                     }
-                }
 
-                override fun getSwipeDirs(
-                    recyclerView: RecyclerView,
-                    viewHolder: RecyclerView.ViewHolder
-                ): Int {
-                    return if (viewHolder is ExercisesAdapterLogger.AddButtonViewHolder) 0
-                    else super.getSwipeDirs(
-                        recyclerView,
-                        viewHolder
-                    )
-                }
 
-                override fun onChildDraw(
-                    c: Canvas,
-                    recyclerView: RecyclerView,
-                    viewHolder: RecyclerView.ViewHolder,
-                    dX: Float,
-                    dY: Float,
-                    actionState: Int,
-                    isCurrentlyActive: Boolean
-                ) {
-                    val itemView = viewHolder.itemView
-
-                    if (dX < 0) {
-                        val icon = ContextCompat.getDrawable(
-                            recyclerView.context,
-                            R.drawable.icons8_delete_24
+                    override fun getSwipeDirs(
+                        recyclerView: RecyclerView,
+                        viewHolder: RecyclerView.ViewHolder
+                    ): Int {
+                        return if (viewHolder is ExercisesAdapterLogger.AddButtonViewHolder) 0
+                        else super.getSwipeDirs(
+                            recyclerView,
+                            viewHolder
                         )
-                        val iconMargin = (itemView.height - (icon?.intrinsicHeight ?: 0)) / 2
+                    }
+
+                    override fun onChildDraw(
+                        c: Canvas,
+                        recyclerView: RecyclerView,
+                        viewHolder: RecyclerView.ViewHolder,
+                        dX: Float,
+                        dY: Float,
+                        actionState: Int,
+                        isCurrentlyActive: Boolean
+                    ) {
+                        val itemView = viewHolder.itemView
+                        val iconMargin = (itemView.height / 4)
+
+                        val editIcon =
+                            ContextCompat.getDrawable(
+                                recyclerView.context,
+                                R.drawable.icons8_edit_24
+                            )
+                        val deleteIcon =
+                            ContextCompat.getDrawable(
+                                recyclerView.context,
+                                R.drawable.icons8_delete_24
+                            )
 
                         val background = GradientDrawable().apply {
                             shape = GradientDrawable.RECTANGLE
                             cornerRadius = 48f
-                            setColor(Color.RED)
+                            setColor(if (dX > 0) Color.parseColor("#2196F3") else Color.parseColor("#F44336"))
                         }
 
-                        background.setBounds(
-                            itemView.right + dX.toInt(),
-                            itemView.top,
-                            itemView.right,
-                            itemView.bottom
-                        )
-                        background.draw(c)
+                        if (dX > 0) {
+                            background.setBounds(
+                                itemView.left,
+                                itemView.top,
+                                itemView.left + dX.toInt(),
+                                itemView.bottom
+                            )
+                            background.draw(c)
 
-                        icon?.let {
-                            val iconTop = itemView.top + iconMargin
-                            val iconLeft = itemView.right - iconMargin - it.intrinsicWidth
-                            val iconRight = itemView.right - iconMargin
-                            val iconBottom = iconTop + it.intrinsicHeight
+                            editIcon?.let {
+                                val iconTop = itemView.top + (itemView.height - it.intrinsicHeight) / 2
+                                val iconLeft = itemView.left + iconMargin
+                                val iconRight = iconLeft + it.intrinsicWidth
+                                val iconBottom = iconTop + it.intrinsicHeight
 
-                            // Only draw the icon if dX is far enough
-                            if (dX < -it.intrinsicWidth - iconMargin * 1.33) {
-                                it.setBounds(iconLeft, iconTop, iconRight, iconBottom)
-                                it.draw(c)
+                                if (dX > -it.intrinsicWidth - iconMargin * 1.33) {
+                                    it.setBounds(iconLeft, iconTop, iconRight, iconBottom)
+                                    it.draw(c)
+                                }
+                            }
+                        } else if (dX < 0) {
+                            background.setBounds(
+                                itemView.right + dX.toInt(),
+                                itemView.top,
+                                itemView.right,
+                                itemView.bottom
+                            )
+                            background.draw(c)
+
+                            deleteIcon?.let {
+                                val iconTop = itemView.top + (itemView.height - it.intrinsicHeight) / 2
+                                val iconRight = itemView.right - iconMargin
+                                val iconLeft = iconRight - it.intrinsicWidth
+                                val iconBottom = iconTop + it.intrinsicHeight
+
+                                if (dX < it.intrinsicWidth - iconMargin * 1.33) {
+                                    it.setBounds(iconLeft, iconTop, iconRight, iconBottom)
+                                    it.draw(c)
+                                }
                             }
                         }
-
                         super.onChildDraw(
                             c,
                             recyclerView,
@@ -243,11 +295,7 @@ class LiftingFragment : Fragment() {
                             isCurrentlyActive
                         )
                     }
-                }
-
-            })
-
-
+                })
 
         itemTouchHelper.attachToRecyclerView(binding.recyclerViewExercises)
         // Function end
@@ -323,7 +371,11 @@ class LiftingFragment : Fragment() {
             .sortedByDescending { it.name }
 
         if (validLogFiles.isEmpty()) {
-            Toast.makeText(requireContext(), "No logs in past $daysBack days", Toast.LENGTH_SHORT)
+            Toast.makeText(
+                requireContext(),
+                "No logs in past $daysBack days",
+                Toast.LENGTH_SHORT
+            )
                 .show()
             return
         }
@@ -378,7 +430,8 @@ class LiftingFragment : Fragment() {
             ).show()
 
         } catch (e: Exception) {
-            Toast.makeText(requireContext(), "Failed to load log", Toast.LENGTH_SHORT).show()
+            Toast.makeText(requireContext(), "Failed to load log", Toast.LENGTH_SHORT)
+                .show()
             e.printStackTrace()
         }
 
@@ -387,7 +440,8 @@ class LiftingFragment : Fragment() {
     private fun promptTemplateLoad() {
         val templatesDir = File(requireContext().filesDir, "templates")
         if (!templatesDir.exists() || templatesDir.listFiles().isNullOrEmpty()) {
-            Toast.makeText(requireContext(), "No templates found", Toast.LENGTH_SHORT).show()
+            Toast.makeText(requireContext(), "No templates found", Toast.LENGTH_SHORT)
+                .show()
             return
         }
 
@@ -427,7 +481,11 @@ class LiftingFragment : Fragment() {
                 Toast.LENGTH_SHORT
             ).show()
         } catch (e: Exception) {
-            Toast.makeText(requireContext(), "Failed to load template", Toast.LENGTH_SHORT).show()
+            Toast.makeText(
+                requireContext(),
+                "Failed to load template",
+                Toast.LENGTH_SHORT
+            ).show()
             e.printStackTrace()
         }
     }
@@ -451,7 +509,11 @@ class LiftingFragment : Fragment() {
                 if (name.isNotEmpty()) {
                     saveWorkoutAsTemplate(name)
                 } else {
-                    Toast.makeText(requireContext(), "Template name required", Toast.LENGTH_SHORT)
+                    Toast.makeText(
+                        requireContext(),
+                        "Template name required",
+                        Toast.LENGTH_SHORT
+                    )
                         .show()
                 }
             }
@@ -462,7 +524,8 @@ class LiftingFragment : Fragment() {
     private fun saveWorkoutAsTemplate(templateName: String) {
         val exerciseNames = workoutLogViewModel.workoutExercises.map { it.name }
         if (exerciseNames.isEmpty()) {
-            Toast.makeText(requireContext(), "No exercises to save", Toast.LENGTH_SHORT).show()
+            Toast.makeText(requireContext(), "No exercises to save", Toast.LENGTH_SHORT)
+                .show()
             return
         }
 
@@ -478,7 +541,11 @@ class LiftingFragment : Fragment() {
         val file = File(templatesDir, "$safeFileName.json")
         file.writeText(json)
 
-        Toast.makeText(requireContext(), "Template \"$templateName\" saved!", Toast.LENGTH_SHORT)
+        Toast.makeText(
+            requireContext(),
+            "Template \"$templateName\" saved!",
+            Toast.LENGTH_SHORT
+        )
             .show()
     }
 
@@ -518,7 +585,11 @@ class LiftingFragment : Fragment() {
                     adapter.notifyItemChanged(position)
                     Toast.makeText(context, "Set Added!", Toast.LENGTH_SHORT).show()
                 } else {
-                    Toast.makeText(context, "Enter valid weight and reps", Toast.LENGTH_SHORT)
+                    Toast.makeText(
+                        context,
+                        "Enter valid weight and reps",
+                        Toast.LENGTH_SHORT
+                    )
                         .show()
                 }
             }

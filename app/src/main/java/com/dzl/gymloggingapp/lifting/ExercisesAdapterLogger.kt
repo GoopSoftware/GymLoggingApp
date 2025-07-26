@@ -73,11 +73,6 @@ class ExercisesAdapterLogger(
                 onAddSetClicked(position)
             }
 
-            holder.itemView.setOnLongClickListener {
-                onEditExerciseClicked(position)
-                true
-            }
-
         } else if (holder is AddButtonViewHolder) {
             holder.binding.textViewAddExercise.setOnClickListener {
                 onAddExerciseClicked()
