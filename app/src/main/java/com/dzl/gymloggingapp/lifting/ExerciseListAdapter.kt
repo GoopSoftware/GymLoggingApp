@@ -30,6 +30,9 @@ class ExerciseListAdapter(
     override fun getItemCount(): Int = exercises.size
 
 
+    fun getExerciseAt(position: Int): ExercisePreset = exercises[position]
+
+
     override fun onBindViewHolder(holder: ExerciseViewHolder, position: Int) {
         val exercise = exercises[position]
         val binding = holder.binding
@@ -55,23 +58,6 @@ class ExerciseListAdapter(
 
         binding.root.setOnClickListener {
             onExerciseSelected(exercise)
-        }
-
-        val showControls = isCustom(exercise)
-
-        // Enables the ability to hide or show the editing and deleting of the custom exercises. This allows
-        // the use of this adapter for the add exercise dialog and the custom exercise fragment
-        binding.buttonEdit.visibility =
-            if (showControls && onEdit != null) View.VISIBLE else View.GONE
-        binding.buttonDelete.visibility =
-            if (showControls && onDelete != null) View.VISIBLE else View.GONE
-
-        binding.buttonEdit.setOnClickListener {
-            onEdit?.invoke(exercise.name)
-        }
-
-        binding.buttonDelete.setOnClickListener {
-            onDelete?.invoke(exercise.name)
         }
 
     }

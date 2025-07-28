@@ -18,7 +18,7 @@
         android:textColor="@color/mainText"
         android:textSize="16sp"
         app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toStartOf="@id/button_delete"
+        app:layout_constraintEnd_toStartOf="@id/button_favorite"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
         app:layout_goneMarginEnd="8dp" />
@@ -39,35 +39,6 @@
 
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        app:tint="@color/lightGray" />
-
-    <ImageButton
-        android:id="@+id/button_edit"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginEnd="4dp"
-        android:background="?attr/selectableItemBackgroundBorderless"
-        android:contentDescription="Edit"
-        android:padding="2dp"
-        android:src="@drawable/outline_edit_24"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toStartOf="@id/button_favorite"
-        app:layout_constraintTop_toTopOf="parent"
-        app:tint="@color/lightGray" />
-
-    <ImageButton
-        android:id="@+id/button_delete"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-
-        android:background="?attr/selectableItemBackgroundBorderless"
-        android:contentDescription="Delete"
-        android:padding="2dp"
-        android:src="@drawable/outline_delete_24"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toStartOf="@id/button_edit"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintStart_toEndOf="@id/text_view_exercise"
         app:tint="@color/lightGray" />
 
 

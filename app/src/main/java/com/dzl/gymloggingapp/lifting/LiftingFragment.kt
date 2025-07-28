@@ -1,8 +1,8 @@
 package com.dzl.gymloggingapp.lifting
 
+import android.content.Context
 import android.graphics.Canvas
 import android.graphics.Color
-import android.graphics.drawable.ColorDrawable
 import android.graphics.drawable.GradientDrawable
 import android.os.Bundle
 import androidx.fragment.app.Fragment
@@ -30,7 +30,6 @@ import com.dzl.gymloggingapp.lifting.dialogs.FinishWorkoutDialog
 import com.dzl.gymloggingapp.logs.WorkoutLogViewModel
 import com.dzl.gymloggingapp.R
 import com.dzl.gymloggingapp.databinding.DialogAddSetBinding
-import com.dzl.gymloggingapp.utils.smartFormat
 import com.google.gson.Gson
 import java.io.File
 import java.time.LocalDate
@@ -69,6 +68,12 @@ class LiftingFragment : Fragment() {
         observeExerciseSelection()
 
         setUpOnClickListeners()
+    }
+
+    private fun setUpOnClickListeners() {
+        binding.buttonFinishWorkout.setOnClickListener {
+            launchFinishWorkoutDialog()
+        }
     }
 
     private fun setUpToolBar() {
@@ -133,6 +138,14 @@ class LiftingFragment : Fragment() {
         binding.recyclerViewExercises.layoutManager = LinearLayoutManager(requireContext())
 
         // Attach adapter and handle clicks to open AddSetDialog
+        setUpAdapter()
+
+        // This function controls the left and right swipe functionality of the exercises
+        setUpSwipeControls()
+
+    }
+
+    private fun setUpAdapter() {
         adapter = ExercisesAdapterLogger(
             workoutLogViewModel.workoutExercises,
             onEditExerciseClicked = { position ->
@@ -155,150 +168,166 @@ class LiftingFragment : Fragment() {
             }
         )
         binding.recyclerViewExercises.adapter = adapter
+    }
 
-        // Make this into a function so we can un clutter setUpExerciseRecyclerView()
-        // Start
-        val itemTouchHelper =
-            ItemTouchHelper(
-                object :
-                    ItemTouchHelper.SimpleCallback(
-                        0,
-                        ItemTouchHelper.LEFT or ItemTouchHelper.RIGHT
-                    ) {
-                    override fun onMove(
-                        recyclerView: RecyclerView,
-                        viewHolder: RecyclerView.ViewHolder,
-                        target: RecyclerView.ViewHolder
-                    ): Boolean = false
+    private fun setUpSwipeControls() {
+        attachSwipeHandler(
+            binding.recyclerViewExercises,
+            onSwipeLeft = { position ->
+                confirmDeletion(position)
+            },
+            onSwipeRight = { position ->
+                val exercise = workoutLogViewModel.workoutExercises[position]
+                val bundle = Bundle().apply {
+                    putString("exercise_name", exercise.name)
+                    putString("sets_json", Gson().toJson(exercise.sets))
+                    putInt("exercise_position", position)
+                }
+                parentFragmentManager.commit {
+                    replace(R.id.frame_content, EditExerciseFragment::class.java, bundle)
+                    addToBackStack("EditExercise")
+                }
+                adapter.notifyItemChanged(position)
+            }
+        )
+    }
 
-                    override fun onSwiped(viewHolder: RecyclerView.ViewHolder, direction: Int) {
-                        val position = viewHolder.adapterPosition
+    private fun confirmDeletion(position: Int) {
+        val exerciseName = workoutLogViewModel.workoutExercises[position].name
 
-                        if (viewHolder is ExercisesAdapterLogger.AddButtonViewHolder) {
-                            adapter.notifyItemChanged(position)
-                            return
-                        }
+        AlertDialog.Builder(requireContext())
+            .setTitle("Delete $exerciseName?")
+            .setMessage("Are you sure you want to delete?")
+            .setPositiveButton("Delete") { _, _ ->
+                workoutLogViewModel.workoutExercises.removeAt(position)
+                adapter.notifyItemRemoved(position)
+                Toast.makeText(context, "Exercise Removed", Toast.LENGTH_SHORT).show()
 
-                        if (direction == ItemTouchHelper.LEFT) {
-                            workoutLogViewModel.workoutExercises.removeAt(position)
-                            adapter.notifyItemRemoved(position)
-                            Toast.makeText(context, "Exercise Removed", Toast.LENGTH_SHORT).show()
-                        } else if (direction == ItemTouchHelper.RIGHT) {
-                            val exercise = workoutLogViewModel.workoutExercises[position]
-                            val bundle = Bundle().apply {
-                                putString("exercise_name", exercise.name)
-                                putString("sets_json", Gson().toJson(exercise.sets))
-                                putInt("exercise_position", position)
-                            }
-                            parentFragmentManager.commit {
-                                replace(
-                                    R.id.frame_content,
-                                    EditExerciseFragment::class.java,
-                                    bundle
-                                )
-                                addToBackStack("EditExercise")
-                            }
-
-                            adapter.notifyItemChanged(position)
-                        }
-                    }
+            }
+            .setNegativeButton("Cancel") { _, _ ->
+                adapter.notifyItemChanged(position)
+            }
+            .show()
+    }
 
 
-                    override fun getSwipeDirs(
-                        recyclerView: RecyclerView,
-                        viewHolder: RecyclerView.ViewHolder
-                    ): Int {
-                        return if (viewHolder is ExercisesAdapterLogger.AddButtonViewHolder) 0
-                        else super.getSwipeDirs(
-                            recyclerView,
-                            viewHolder
-                        )
-                    }
+    private fun attachSwipeHandler(
+        recyclerView: RecyclerView,
+        onSwipeLeft: (position: Int) -> Unit,
+        onSwipeRight: (position: Int) -> Unit
+    ) {
+        val itemTouchHelper = ItemTouchHelper(object : ItemTouchHelper.SimpleCallback(
+            0, ItemTouchHelper.LEFT or ItemTouchHelper.RIGHT
+        ) {
+            override fun onMove(
+                recyclerView: RecyclerView,
+                viewHolder: RecyclerView.ViewHolder,
+                target: RecyclerView.ViewHolder
+            ) = false
 
-                    override fun onChildDraw(
-                        c: Canvas,
-                        recyclerView: RecyclerView,
-                        viewHolder: RecyclerView.ViewHolder,
-                        dX: Float,
-                        dY: Float,
-                        actionState: Int,
-                        isCurrentlyActive: Boolean
-                    ) {
-                        val itemView = viewHolder.itemView
-                        val iconMargin = (itemView.height / 4)
+            override fun onSwiped(viewHolder: RecyclerView.ViewHolder, direction: Int) {
+                val position = viewHolder.adapterPosition
 
-                        val editIcon =
-                            ContextCompat.getDrawable(
-                                recyclerView.context,
-                                R.drawable.icons8_edit_24
-                            )
-                        val deleteIcon =
-                            ContextCompat.getDrawable(
-                                recyclerView.context,
-                                R.drawable.icons8_delete_24
-                            )
+                // Skips special rows (aka the green + add exercise button)
+                if (viewHolder is ExercisesAdapterLogger.AddButtonViewHolder) {
+                    recyclerView.adapter?.notifyItemChanged(position)
+                    return
+                }
 
-                        val background = GradientDrawable().apply {
-                            shape = GradientDrawable.RECTANGLE
-                            cornerRadius = 48f
-                            setColor(if (dX > 0) Color.parseColor("#2196F3") else Color.parseColor("#F44336"))
-                        }
+                when (direction) {
+                    ItemTouchHelper.LEFT -> onSwipeLeft(position)
+                    ItemTouchHelper.RIGHT -> onSwipeRight(position)
+                }
+            }
 
-                        if (dX > 0) {
-                            background.setBounds(
-                                itemView.left,
-                                itemView.top,
-                                itemView.left + dX.toInt(),
-                                itemView.bottom
-                            )
-                            background.draw(c)
+            override fun onChildDraw(
+                c: Canvas,
+                recyclerView: RecyclerView,
+                viewHolder: RecyclerView.ViewHolder,
+                dX: Float,
+                dY: Float,
+                actionState: Int,
+                isCurrentlyActive: Boolean
+            ) {
+                drawSwipeBackground(c, recyclerView.context, viewHolder.itemView, dX)
+                super.onChildDraw(
+                    c,
+                    recyclerView,
+                    viewHolder,
+                    dX,
+                    dY,
+                    actionState,
+                    isCurrentlyActive
+                )
+            }
 
-                            editIcon?.let {
-                                val iconTop = itemView.top + (itemView.height - it.intrinsicHeight) / 2
-                                val iconLeft = itemView.left + iconMargin
-                                val iconRight = iconLeft + it.intrinsicWidth
-                                val iconBottom = iconTop + it.intrinsicHeight
+            override fun getSwipeDirs(
+                recyclerView: RecyclerView,
+                viewHolder: RecyclerView.ViewHolder
+            ): Int {
+                return if (viewHolder is ExercisesAdapterLogger.AddButtonViewHolder) 0 else super.getSwipeDirs(
+                    recyclerView,
+                    viewHolder
+                )
+            }
+        })
 
-                                if (dX > -it.intrinsicWidth - iconMargin * 1.33) {
-                                    it.setBounds(iconLeft, iconTop, iconRight, iconBottom)
-                                    it.draw(c)
-                                }
-                            }
-                        } else if (dX < 0) {
-                            background.setBounds(
-                                itemView.right + dX.toInt(),
-                                itemView.top,
-                                itemView.right,
-                                itemView.bottom
-                            )
-                            background.draw(c)
+        itemTouchHelper.attachToRecyclerView(recyclerView)
+    }
 
-                            deleteIcon?.let {
-                                val iconTop = itemView.top + (itemView.height - it.intrinsicHeight) / 2
-                                val iconRight = itemView.right - iconMargin
-                                val iconLeft = iconRight - it.intrinsicWidth
-                                val iconBottom = iconTop + it.intrinsicHeight
 
-                                if (dX < it.intrinsicWidth - iconMargin * 1.33) {
-                                    it.setBounds(iconLeft, iconTop, iconRight, iconBottom)
-                                    it.draw(c)
-                                }
-                            }
-                        }
-                        super.onChildDraw(
-                            c,
-                            recyclerView,
-                            viewHolder,
-                            dX,
-                            dY,
-                            actionState,
-                            isCurrentlyActive
-                        )
-                    }
-                })
+    private fun drawSwipeBackground(c: Canvas, context: Context, itemView: View, dX: Float) {
+        val iconMargin = itemView.height / 4
+        val editIcon = ContextCompat.getDrawable(context, R.drawable.icons8_edit_24)
+        val deleteIcon = ContextCompat.getDrawable(context, R.drawable.icons8_delete_24)
 
-        itemTouchHelper.attachToRecyclerView(binding.recyclerViewExercises)
-        // Function end
+        val background = GradientDrawable().apply {
+            shape = GradientDrawable.RECTANGLE
+            cornerRadius = 48f
+            setColor(if (dX > 0) Color.parseColor("#2196F3") else Color.parseColor("#F44336"))
+        }
+
+        if (dX > 0) {
+            background.setBounds(
+                itemView.left,
+                itemView.top,
+                itemView.left + dX.toInt(),
+                itemView.bottom
+            )
+            background.draw(c)
+
+            editIcon?.let {
+                val iconTop = itemView.top + (itemView.height - it.intrinsicHeight) / 2
+                val iconLeft = itemView.left + iconMargin
+                val iconRight = iconLeft + it.intrinsicWidth
+                val iconBottom = iconTop + it.intrinsicHeight
+
+                if (dX > it.intrinsicWidth) {
+                    it.setBounds(iconLeft, iconTop, iconRight, iconBottom)
+                    it.draw(c)
+                }
+            }
+        } else if (dX < 0) {
+            background.setBounds(
+                itemView.right + dX.toInt(),
+                itemView.top,
+                itemView.right,
+                itemView.bottom
+            )
+            background.draw(c)
+
+            deleteIcon?.let {
+                val iconTop = itemView.top + (itemView.height - it.intrinsicHeight) / 2
+                val iconRight = itemView.right - iconMargin
+                val iconLeft = iconRight - it.intrinsicWidth
+                val iconBottom = iconTop + it.intrinsicHeight
+
+                if (dX < -it.intrinsicWidth) {
+                    it.setBounds(iconLeft, iconTop, iconRight, iconBottom)
+                    it.draw(c)
+                }
+            }
+        }
     }
 
     private fun observeExerciseSelection() {
@@ -340,12 +369,7 @@ class LiftingFragment : Fragment() {
         }
     }
 
-    private fun setUpOnClickListeners() {
-        //binding.buttonAddExercise.setOnClickListener { launchExerciseDialog() }
-        binding.buttonFinishWorkout.setOnClickListener {
-            launchFinishWorkoutDialog()
-        }
-    }
+
 
     private fun showFilteredLogFilePicker(daysBack: Int) {
 
