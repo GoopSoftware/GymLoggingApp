@@ -38,28 +38,42 @@
 
     <!-- End Header -->
 
-    <HorizontalScrollView
-        android:id="@+id/scroll_view_templates"
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/layout_template_bar"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:overScrollMode="never"
-        android:paddingLeft="4dp"
-        android:paddingRight="4dp"
-        android:scrollbars="none"
+        android:background="@drawable/search_chip_bar_bg"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
+
         app:layout_constraintTop_toBottomOf="@id/lifting_toolbar">
 
-        <com.google.android.material.chip.ChipGroup
-            android:id="@+id/template_chip_group"
-            android:layout_width="wrap_content"
+        <HorizontalScrollView
+            android:id="@+id/scroll_view_templates"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:padding="4dp"
-            app:chipSpacingHorizontal="12dp"
-            app:chipSpacingVertical="4dp"
-            app:singleLine="true" />
+            android:overScrollMode="never"
+            android:paddingLeft="4dp"
+            android:paddingRight="4dp"
+            android:scrollbars="none"
+            app:layout_constraintTop_toTopOf="@id/layout_template_bar"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent">
 
-    </HorizontalScrollView>
+            <com.google.android.material.chip.ChipGroup
+                android:id="@+id/template_chip_group"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:padding="4dp"
+                app:chipSpacingHorizontal="12dp"
+                app:chipSpacingVertical="4dp"
+                app:singleLine="true" />
+
+        </HorizontalScrollView>
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
+
 
 
     <!-- Exercises -->
@@ -72,7 +86,7 @@
         app:layout_constraintBottom_toTopOf="@id/button_finish_workout"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/scroll_view_templates"
+        app:layout_constraintTop_toBottomOf="@id/layout_template_bar"
         tools:listitem="@layout/item_exercise_log_for_lifting_fragment" />
 
 

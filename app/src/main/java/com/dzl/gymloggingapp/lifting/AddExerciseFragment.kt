@@ -41,10 +41,14 @@ class AddExerciseFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
 
-        setupToolBar()
+        //setupToolBar()
         setupAdapter()
         setupSearchBar()
         setupFilterChips()
+
+        binding.buttonCancel.setOnClickListener {
+            requireActivity().supportFragmentManager.popBackStack()
+        }
 
         customExerciseViewModel.loadExercises()
         customExerciseViewModel.exerciseList.observe(viewLifecycleOwner) { customList ->
@@ -63,12 +67,13 @@ class AddExerciseFragment : Fragment() {
 
     }
 
+    /*
     private fun setupToolBar() {
         binding.addExerciseToolbar.setNavigationOnClickListener {
             requireActivity().onBackPressedDispatcher.onBackPressed()
         }
     }
-
+    */
     private fun setupAdapter() {
         adapter = ExerciseListAdapter(
             exercises = mutableListOf(),

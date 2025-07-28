@@ -19,11 +19,14 @@ import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.RecyclerView
 import com.dzl.gymloggingapp.R
 import com.dzl.gymloggingapp.databinding.FragmentCustomExerciseBinding
+import com.dzl.gymloggingapp.logs.WorkoutLogViewModel
 
 class CustomExerciseFragment : Fragment() {
 
     private lateinit var binding: FragmentCustomExerciseBinding
     private val customExerciseViewModel: CustomExerciseViewModel by activityViewModels()
+    private val workoutLogViewModel: WorkoutLogViewModel by activityViewModels()
+    private val exerciseViewModel: ExerciseSelectionViewModel by activityViewModels()
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -48,6 +51,7 @@ class CustomExerciseFragment : Fragment() {
         )
 
         binding.recyclerCustomExercises.adapter = adapter
+
 
         val itemTouchHelper = ItemTouchHelper(object : ItemTouchHelper.SimpleCallback(
             0, ItemTouchHelper.LEFT or ItemTouchHelper.RIGHT
@@ -199,6 +203,13 @@ class CustomExerciseFragment : Fragment() {
                     val added = customExerciseViewModel.addExercise(name)
                     if (added) {
                         Toast.makeText(context, "$name added!", Toast.LENGTH_SHORT).show()
+
+                        exerciseViewModel.selectedExercise(name)
+                        // Return the user from custom exercise creation to lifting fragment
+                        // This could mess up in the future but for now it works.
+                        parentFragmentManager.popBackStack()
+                        parentFragmentManager.popBackStack()
+
                     } else {
                         Toast.makeText(
                             context,

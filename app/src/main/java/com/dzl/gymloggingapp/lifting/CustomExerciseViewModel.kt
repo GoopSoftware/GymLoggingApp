@@ -1,5 +1,6 @@
 package com.dzl.gymloggingapp.lifting
 
+import DefaultExercises
 import android.app.Application
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
@@ -29,7 +30,7 @@ class CustomExerciseViewModel(application: Application) : AndroidViewModel(appli
             val savedList: MutableList<String> = gson.fromJson(json, type)
             _exerciseList.value = savedList
         } else {
-            val default = mutableListOf("Bench Press", "Deadlift", "Squat")
+            val default = DefaultExercises.list.map { it.name.lowercase()}
             _exerciseList.value = default
             saveExercises(default)
         }
@@ -42,7 +43,7 @@ class CustomExerciseViewModel(application: Application) : AndroidViewModel(appli
 
 
         val existing = _exerciseList.value.orEmpty().map { it.lowercase() }
-        val defaultExercises = listOf("Bench Press", "Deadlift", "Squat").map { it.lowercase() }
+        val defaultExercises = DefaultExercises.list.map { it.name.lowercase()}
 
         return if (trimmed.isNotEmpty() && lower !in existing && lower !in defaultExercises) {
             val updatedList = _exerciseList.value?.toMutableList() ?: mutableListOf()
@@ -53,15 +54,6 @@ class CustomExerciseViewModel(application: Application) : AndroidViewModel(appli
         } else {
             false
         }
-
-        /*
-        val current = _exerciseList.value?.toMutableList() ?: mutableListOf()
-        if (name.isNotBlank() && name !in current) {
-            current.add(name)
-            _exerciseList.value = current.sortedBy { it.lowercase() }
-            saveExercises(current)
-        }
-         */
     }
 
     fun renameExercise(oldName: String, newName: String): Boolean {
