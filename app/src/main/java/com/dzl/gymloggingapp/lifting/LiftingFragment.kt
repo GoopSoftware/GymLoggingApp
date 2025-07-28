@@ -1,10 +1,12 @@
 package com.dzl.gymloggingapp.lifting
 
 import android.content.Context
+import android.content.res.ColorStateList
 import android.graphics.Canvas
 import android.graphics.Color
 import android.graphics.drawable.GradientDrawable
 import android.os.Bundle
+import android.view.ContextThemeWrapper
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.Menu
@@ -30,6 +32,7 @@ import com.dzl.gymloggingapp.lifting.dialogs.FinishWorkoutDialog
 import com.dzl.gymloggingapp.logs.WorkoutLogViewModel
 import com.dzl.gymloggingapp.R
 import com.dzl.gymloggingapp.databinding.DialogAddSetBinding
+import com.google.android.material.chip.Chip
 import com.google.gson.Gson
 import java.io.File
 import java.time.LocalDate
@@ -68,6 +71,7 @@ class LiftingFragment : Fragment() {
         observeExerciseSelection()
 
         setUpOnClickListeners()
+        setUpTemplateChips()
     }
 
     private fun setUpOnClickListeners() {
@@ -190,6 +194,55 @@ class LiftingFragment : Fragment() {
                 adapter.notifyItemChanged(position)
             }
         )
+    }
+
+
+    private fun setUpTemplateChips() {
+        val templatesDir = File(requireContext().filesDir, "templates")
+        binding.templateChipGroup.removeAllViews()
+
+        val newChip = Chip(
+            ContextThemeWrapper(requireContext(), R.style.CustomChipStyle),
+            null,
+            com.google.android.material.R.attr.chipStyle
+        ).apply {
+            text = "+ New Template"
+            isCheckable = false
+            // TODO: Change this to a new template create window when its done
+            val defaultBg = ContextCompat.getColor(context, R.color.darkGray)
+            val defaultText = ContextCompat.getColor(context, R.color.lightGray)
+
+            chipBackgroundColor = ColorStateList.valueOf(defaultBg)
+            setTextColor(defaultText)
+            setOnClickListener { promptTemplateNameAndSave() }
+        }
+        binding.templateChipGroup.addView(newChip)
+
+        if (templatesDir.exists()) {
+            templatesDir.listFiles()?.filter {it.extension == "json" }?.forEach { file ->
+                val chip = Chip(requireContext()).apply {
+                    text = file.nameWithoutExtension
+                    isCheckable = false
+
+                    val defaultBg = ContextCompat.getColor(context, R.color.darkGray)
+                    val defaultText = ContextCompat.getColor(context, R.color.lightGray)
+
+                    chipBackgroundColor = ColorStateList.valueOf(defaultBg)
+                    setTextColor(defaultText)
+
+                    setOnClickListener {
+                        AlertDialog.Builder(requireContext())
+                            .setTitle("Load Template \"${file.nameWithoutExtension}\"?")
+                            .setMessage("This will replace the current workout.")
+                            .setPositiveButton("Load") { _, _ -> loadTemplateFromFile(file) }
+                            .setNegativeButton("Cancel", null)
+                            .show()
+                    }
+                }
+                binding.templateChipGroup.addView(chip)
+            }
+        }
+
     }
 
     private fun confirmDeletion(position: Int) {

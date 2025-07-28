@@ -51,12 +51,12 @@
 
 
     <HorizontalScrollView
-        android:paddingLeft="4dp"
-        android:paddingRight="4dp"
         android:id="@+id/scroll_view_filter"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:overScrollMode="never"
+        android:paddingLeft="4dp"
+        android:paddingRight="4dp"
         android:scrollbars="none"
         app:layout_constraintBottom_toTopOf="@id/recycler_view_exercises"
         app:layout_constraintEnd_toEndOf="parent"
@@ -84,8 +84,8 @@
         android:id="@+id/recycler_view_exercises"
         android:layout_width="0dp"
         android:layout_height="0dp"
-        android:padding="4dp"
         android:layout_margin="4dp"
+        android:padding="4dp"
         app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
         app:layout_constraintBottom_toTopOf="@id/button_custom_exercise"
         app:layout_constraintEnd_toEndOf="parent"
