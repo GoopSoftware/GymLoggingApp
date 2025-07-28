@@ -43,6 +43,7 @@ class LiftingFragment : Fragment() {
     private lateinit var adapter: ExercisesAdapterLogger
     private val exerciseViewModel: ExerciseSelectionViewModel by activityViewModels()
     private val workoutLogViewModel: WorkoutLogViewModel by activityViewModels()
+    private var currentTemplateName: String? = null
 
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -70,8 +71,10 @@ class LiftingFragment : Fragment() {
         // Logic for when user adds a new exercise
         observeExerciseSelection()
 
-        setUpOnClickListeners()
         setUpTemplateChips()
+
+        setUpOnClickListeners()
+
     }
 
     private fun setUpOnClickListeners() {
@@ -98,6 +101,8 @@ class LiftingFragment : Fragment() {
                     return when (menuItem.itemId) {
                         R.id.menu_clear_workout -> {
                             clearWorkout()
+                            currentTemplateName = null
+                            setUpTemplateChips()
                             true
                         }
 
@@ -209,38 +214,49 @@ class LiftingFragment : Fragment() {
             text = "+ New Template"
             isCheckable = false
             // TODO: Change this to a new template create window when its done
-            val defaultBg = ContextCompat.getColor(context, R.color.darkGray)
-            val defaultText = ContextCompat.getColor(context, R.color.lightGray)
 
-            chipBackgroundColor = ColorStateList.valueOf(defaultBg)
-            setTextColor(defaultText)
+            chipBackgroundColor =
+                ColorStateList.valueOf(ContextCompat.getColor(context, R.color.darkGray))
+            setTextColor(ContextCompat.getColor(context, R.color.lightGray))
             setOnClickListener { promptTemplateNameAndSave() }
         }
         binding.templateChipGroup.addView(newChip)
 
         if (templatesDir.exists()) {
-            templatesDir.listFiles()?.filter {it.extension == "json" }?.forEach { file ->
-                val chip = Chip(requireContext()).apply {
-                    text = file.nameWithoutExtension
-                    isCheckable = false
+            templatesDir.listFiles()
+                ?.filter { it.extension == "json" }
+                ?.forEach { file ->
+                    val isActive = file.nameWithoutExtension == currentTemplateName
 
-                    val defaultBg = ContextCompat.getColor(context, R.color.darkGray)
-                    val defaultText = ContextCompat.getColor(context, R.color.lightGray)
+                    val chip = Chip(
+                        ContextThemeWrapper(requireContext(), R.style.CustomChipStyle),
+                        null,
+                        com.google.android.material.R.attr.chipStyle
+                        ).apply {
+                        text = file.nameWithoutExtension
+                        isCheckable = false
 
-                    chipBackgroundColor = ColorStateList.valueOf(defaultBg)
-                    setTextColor(defaultText)
+                        val bgColor = if (isActive) R.color.bottom_nav_selected else R.color.darkGray
+                        val textColor = if (isActive) R.color.white else R.color.lightGray
 
-                    setOnClickListener {
-                        AlertDialog.Builder(requireContext())
-                            .setTitle("Load Template \"${file.nameWithoutExtension}\"?")
-                            .setMessage("This will replace the current workout.")
-                            .setPositiveButton("Load") { _, _ -> loadTemplateFromFile(file) }
-                            .setNegativeButton("Cancel", null)
-                            .show()
+                        chipBackgroundColor = ColorStateList.valueOf(ContextCompat.getColor(context, bgColor))
+                        setTextColor(ContextCompat.getColor(context, textColor))
+
+                        setOnClickListener {
+                            AlertDialog.Builder(requireContext())
+                                .setTitle("Load Template \"$text\"?")
+                                .setMessage("This will replace the current workout.")
+                                .setPositiveButton("Load") { _, _ ->
+                                    loadTemplateFromFile(file)
+                                    currentTemplateName = file.nameWithoutExtension
+                                    setUpTemplateChips() // refresh highlight
+                                }
+                                .setNegativeButton("Cancel", null)
+                                .show()
+                        }
                     }
+                    binding.templateChipGroup.addView(chip)
                 }
-                binding.templateChipGroup.addView(chip)
-            }
         }
 
     }
@@ -256,6 +272,8 @@ class LiftingFragment : Fragment() {
                 adapter.notifyItemRemoved(position)
                 Toast.makeText(context, "Exercise Removed", Toast.LENGTH_SHORT).show()
 
+                currentTemplateName = null
+                setUpTemplateChips()
             }
             .setNegativeButton("Cancel") { _, _ ->
                 adapter.notifyItemChanged(position)
@@ -410,6 +428,9 @@ class LiftingFragment : Fragment() {
                         )
                     )
                     Toast.makeText(context, "Exercise added", Toast.LENGTH_SHORT).show()
+
+                    currentTemplateName = null
+                    setUpTemplateChips()
                 }
 
                 if (workoutLogViewModel.workoutExercises.size == 1) {
@@ -421,7 +442,6 @@ class LiftingFragment : Fragment() {
             }
         }
     }
-
 
 
     private fun showFilteredLogFilePicker(daysBack: Int) {
@@ -540,9 +560,12 @@ class LiftingFragment : Fragment() {
         val json = file.readText()
         val gson = Gson()
 
+
         try {
             val template = gson.fromJson(json, WorkoutTemplate::class.java)
 
+            currentTemplateName = file.nameWithoutExtension
+            setUpTemplateChips()
             workoutLogViewModel.workoutExercises.clear()
 
             template.exercises.forEach { exerciseName ->
@@ -614,7 +637,7 @@ class LiftingFragment : Fragment() {
         val templatesDir = File(requireContext().filesDir, "templates")
         if (!templatesDir.exists()) templatesDir.mkdirs()
 
-        val safeFileName = templateName.replace("""[^\w\d_-]""".toRegex(), "_")
+        val safeFileName = templateName.replace("""[^\w\d\s-]""".toRegex(), "").trim()
         val file = File(templatesDir, "$safeFileName.json")
         file.writeText(json)
 
@@ -624,6 +647,9 @@ class LiftingFragment : Fragment() {
             Toast.LENGTH_SHORT
         )
             .show()
+
+        currentTemplateName = templateName
+        setUpTemplateChips()
     }
 
     override fun onPause() {
