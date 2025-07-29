@@ -4,6 +4,7 @@
     android:id="@+id/edit_exercise_root"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:background="@color/background"
     android:descendantFocusability="afterDescendants"
     android:focusableInTouchMode="true">
 
@@ -70,7 +71,8 @@
             style="@style/Widget.MaterialComponents.Button.OutlinedButton"
             android:text="Save Exercise"
             android:textStyle="bold"
-            android:textColor="@color/black"
+            android:backgroundTint="@color/bottom_nav_selected"
+            android:textColor="@color/mainText"
             android:layout_marginBottom="12dp"/>
     </LinearLayout>
 
