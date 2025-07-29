@@ -1,7 +1,4 @@
 <?xml version="1.0" encoding="utf-8"?>
-
-<!-- Constraint for entire page -->
-
 <androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
@@ -18,7 +15,7 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        app:title="Lifting"
+        app:title=""
         app:titleTextAppearance="@style/TextAppearance.Material3.HeadlineLarge"
         app:titleTextColor="@android:color/black" />
 
@@ -38,6 +35,15 @@
 
     <!-- End Header -->
 
+    <TextView
+        android:id="@+id/text_view_top_bar"
+        android:layout_width="match_parent"
+        android:layout_height="125dp"
+        android:background="@color/card_background"
+        app:layout_constraintTop_toBottomOf="@id/lifting_toolbar"
+        app:layout_constraintBottom_toTopOf="@id/layout_template_bar"
+        />
+
     <androidx.constraintlayout.widget.ConstraintLayout
         android:id="@+id/layout_template_bar"
         android:layout_width="match_parent"
@@ -45,8 +51,8 @@
         android:background="@drawable/search_chip_bar_bg"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/text_view_top_bar">
 
-        app:layout_constraintTop_toBottomOf="@id/lifting_toolbar">
 
         <HorizontalScrollView
             android:id="@+id/scroll_view_templates"

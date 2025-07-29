@@ -1,8 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
 <androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_margin="2dp"
+
+    android:background="@drawable/exercise_card_background"
     android:padding="16dp">
 
     <TextView
@@ -10,23 +13,23 @@
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:text="2025-07-07"
+        android:textColor="@color/mainText"
         android:textSize="16sp"
         android:textStyle="bold"
-        android:textColor="@android:color/black"
+        app:layout_constraintEnd_toStartOf="@+id/text_view_exercise_summary"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintEnd_toStartOf="@+id/text_view_exercise_summary" />
+        app:layout_constraintTop_toTopOf="parent" />
 
     <TextView
         android:id="@+id/text_view_exercise_summary"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:text="Bench, Squat, Deadlift"
-        android:textSize="16sp"
-        android:textColor="@android:color/darker_gray"
         android:gravity="end"
-        app:layout_constraintStart_toEndOf="@id/text_view_exercise_date"
+        android:text="Bench, Squat, Deadlift"
+        android:textColor="@color/secondaryText"
+        android:textSize="16sp"
         app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toEndOf="@id/text_view_exercise_date"
         app:layout_constraintTop_toTopOf="@id/text_view_exercise_date" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

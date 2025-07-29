@@ -12,6 +12,8 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.core.content.ContextCompat
+import androidx.core.view.ViewCompat
+import androidx.core.view.WindowInsetsCompat
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -57,6 +59,22 @@ class AddExerciseFragment : Fragment() {
             loadFavorites()
             applyFilters()
         }
+
+        ViewCompat.setOnApplyWindowInsetsListener(binding.root) { view, insets ->
+            val imeInsets = insets.getInsets(WindowInsetsCompat.Type.ime())
+            val navInsets = insets.getInsets(WindowInsetsCompat.Type.systemBars())
+
+            // Apply bottom padding to RecyclerView when keyboard is open
+            binding.recyclerViewExercises.setPadding(
+                0,
+                0,
+                0,
+                if (imeInsets.bottom > 0) imeInsets.bottom else navInsets.bottom
+            )
+
+            insets
+        }
+
 
         binding.buttonCustomExercise.setOnClickListener {
             parentFragmentManager.beginTransaction()
