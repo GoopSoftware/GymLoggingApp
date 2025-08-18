@@ -660,7 +660,7 @@ class LiftingFragment : Fragment() {
     private fun launchAddExerciseFragment() {
         parentFragmentManager.beginTransaction()
             .replace(R.id.frame_content, AddExerciseFragment())
-            .addToBackStack(null)
+            .addToBackStack("AddExerciseFragment")
             .commit()
     }
 
