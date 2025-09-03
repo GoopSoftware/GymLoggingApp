@@ -6,6 +6,7 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.LinearLayoutManager
+import com.dzl.gymloggingapp.R
 import com.dzl.gymloggingapp.databinding.FragmentLogsBinding
 import com.dzl.gymloggingapp.dataclasses.WorkoutSession
 import com.dzl.gymloggingapp.logs.dialogs.ViewPreviousLogDialog
@@ -58,13 +59,18 @@ class LogsFragment : Fragment() {
         val logs = loadWorkoutLogs()
 
         binding.recyclerViewLogs.adapter = WorkoutLogAdapter(logs) { selectedLog ->
-            launchLogsDialog(selectedLog)
+            launchLogsFragment(selectedLog)
         }
     }
 
-    private fun launchLogsDialog(session: WorkoutSession) {
-        val dialog = ViewPreviousLogDialog.newInstance(session)
-        dialog.show(parentFragmentManager, "ViewPreviousLogDialog")
+    private fun launchLogsFragment(session: WorkoutSession) {
+        val fragment = ViewLogsFragment.newInstance("${session.date}.json")
+        requireActivity().supportFragmentManager.beginTransaction()
+            .replace(R.id.frame_content, fragment)
+            .addToBackStack(null)
+            .commit()
+
+
     }
 
 }
