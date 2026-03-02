@@ -490,18 +490,3 @@ class LiftingFragment : Fragment() {
 
 
 }
-
-data class ExerciseLog(
-    val name: String,
-    val sets: MutableList<SetEntry>
-)
-
-data class SetEntry(
-    var weight: Int? = null,
-    var reps: Int? = null
-)
-
-data class WorkoutTemplate(
-    val name: String,
-    val exercises: List<String>
-)
