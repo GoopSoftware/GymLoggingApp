@@ -37,15 +37,21 @@ class WorkoutLogViewModel(application: Application) : AndroidViewModel(applicati
         }
         try {
             val json = file.readText()
+            if (json.isBlank()) {
+                Log.d("WorkoutLogViewModel", "Temp file is empty.")
+                workoutExercises.clear()
+                return
+            }
             val session = gson.fromJson(json, WorkoutSession::class.java)
             workoutExercises.clear()
-            workoutExercises.addAll(session.exercises)
+            session.exercises?.let { workoutExercises.addAll(it) }
             Log.d(
                 "WorkoutLogViewModel",
-                "Loaded ${session.exercises.size} exercises from temp file."
+                "Loaded ${workoutExercises.size} exercises from temp file."
             )
         } catch (e: Exception) {
             Log.e("WorkoutLogViewModel", "Error loading temp file", e)
+            workoutExercises.clear()
         }
     }
 
