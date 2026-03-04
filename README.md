@@ -1,8 +1,6 @@
-# Lifting Log App
+# 🏋️ GymLoggingApp
 
-A modern Android gym logging application built with Kotlin.
-
-This app allows users to track lifting workouts, manage exercises, create templates, and store workout history — all without using a database (JSON-based).
+A modern Android gym logging application built with Kotlin — track your workouts without the database bloat.
 
 ---
 
@@ -11,8 +9,7 @@ This app allows users to track lifting workouts, manage exercises, create templa
 ### Lifting Tracking
 - Add exercises to a workout
 - Add sets with weight and reps
-- Edit individual sets
-- Edit all sets of an exercise
+- Edit individual sets or all sets of an exercise
 - Swipe to edit exercises
 - Tap to quickly add a set
 - Drag to reorder exercises
@@ -24,147 +21,127 @@ This app allows users to track lifting workouts, manage exercises, create templa
 - Load templates into active workout
 - Supports custom + default exercises
 
-### Logs
+### Logs & History
 - Workouts saved as JSON files
-- Log viewer fragment
+- Log viewer with detailed entries
 - Editable workout dates
-- Detailed log view (ViewLogFragment)
 - Template name stored with workout
+- View previous workout details
 
-### UX Improvements
-- Contextual tooltips (shown only to new users)
+### UX
+- Contextual tooltips (new users only)
 - Confirmation dialogs for deletions
 - Fragment animations
 - Clean exercise card UI
 
 ---
 
+## Tech Stack
+
+| Category | Technology |
+|----------|------------|
+| Language | Kotlin |
+| UI | XML layouts + ViewBinding |
+| Navigation | Manual fragment transactions |
+| Persistence | JSON files (Gson) |
+| State | ViewModel + temp autosave |
+| Min SDK | 33 (Android 13) |
+| Target SDK | 35 |
+
+---
+
 ## Architecture
 
-### Core Structure
-
-- **Language:** Kotlin
-- **UI:** XML layouts with ViewBinding
-- **Navigation:** Manual fragment transactions (no Navigation Component)
-- **Persistence:** JSON files in internal storage
-- **State Management:** ViewModel + temporary autosave file
-
-### Main Fragments
-
-- `HomeFragment`
-- `LiftingFragment`
-- `CardioFragment`
-- `LogsFragment`
-- `AddExerciseFragment`
-- `EditSetsFragment`
-- `TemplateCreationFragment`
-- `ViewLogFragment`
-
-### Navigation
-
-`MainActivity` uses:
+### Data Flow
 
 ```
-frame_content
+User Action → Fragment → ViewModel → JSON File
+                ↓
+         RecyclerView Adapter
 ```
 
-as the fragment container.
+### Storage Strategy
 
-Bottom navigation:
-- Home
-- Lifting
-- Cardio
-- Logs
+- **Active workout:** In-memory (ViewModel) → autosaved to `temp_workout.json`
+- **Completed workouts:** `/files/logs/YYYY-MM-DD.json`
+
+This hybrid approach provides crash recovery and fragment-safe state handling without a database.
+
+### Package Structure
+
+```
+app/src/main/java/com/dzl/gymloggingapp/
+├── MainActivity.kt
+├── dataclasses/
+│   └── WorkoutSession.kt
+├── home/
+│   └── HomeFragment.kt
+├── lifting/
+│   ├── LiftingFragment.kt
+│   ├── ExerciseListAdapter.kt
+│   ├── ExercisesAdapterLogger.kt
+│   ├── EditExerciseFragment.kt
+│   ├── CustomExerciseViewModel.kt
+│   ├── ExerciseSelectionViewModel.kt
+│   └── dialogs/
+│       ├── AddExerciseDialog.kt
+│       └── FinishWorkoutDialog.kt
+├── cardio/
+│   └── CardioFragment.kt
+└── logs/
+    ├── LogsFragment.kt
+    ├── WorkoutLogAdapter.kt
+    ├── PreviousExerciseLogAdapter.kt
+    ├── WorkoutLogViewModel.kt
+    └── dialogs/
+        └── ViewPreviousLogDialog.kt
+```
 
 ---
 
-## Data Persistence
+## Screens
 
-This app does **not** use Room or SQLite.
+| Screen | Description |
+|--------|-------------|
+| Home | Dashboard / welcome |
+| Lifting | Main workout logging |
+| Cardio | Cardio tracking |
+| Logs | View past workouts |
 
-Instead:
-
-- Active workout is stored in memory (ViewModel)
-- Autosaved to:  
-  `temp_workout.json`
-- Completed workouts saved to:  
-  `/files/logs/YYYY-MM-DD.json`
-
-This hybrid approach allows:
-
-- Crash recovery
-- Fragment-safe state handling
-- Simple file-based architecture
-
----
-
-## Project Structure (Simplified)
-
-```
-app/
-│
-├── data/
-│   ├── ExercisePreset.kt
-│   ├── WorkoutSession.kt
-│
-├── ui/
-│   ├── fragments/
-│   │   ├── LiftingFragment.kt
-│   │   ├── AddExerciseFragment.kt
-│   │   ├── EditSetsFragment.kt
-│   │   ├── LogsFragment.kt
-│   │   ├── ViewLogFragment.kt
-│   │   └── TemplateCreationFragment.kt
-│
-├── adapters/
-│   ├── ExercisesAdapter.kt
-│   ├── WorkoutLogsAdapter.kt
-│
-└── MainActivity.kt
-```
+Navigation: Bottom nav with 4 tabs. `MainActivity` hosts fragments in `frame_content`.
 
 ---
 
 ## Design Goals
 
-- Clean UI
-- Minimal friction for logging sets
-- No over-engineering
-- Modular dialogs/fragments
-- Scalable architecture
-- Beginner-friendly but extensible codebase
+- ⚡ **Fast** — Minimal friction for logging sets
+- 🔧 **Maintainable** — Modular dialogs and fragments
+- 📖 **Learnable** — Beginner-friendly codebase
+- 🧱 **Scalable** — Foundation for future features
 
 ---
 
-## Future Ideas
+## Future Enhancements
 
-- Personal progression feature ("Grow This Dude")
-- Analytics dashboard (volume per week)
-- PR tracking
-- Cloud sync
-- Export to CSV
-- Dark mode polish
-
----
-
-## Tech Stack
-
-- Kotlin
-- Android SDK
-- RecyclerView
-- ViewBinding
-- JSON Serialization
-- Fragment transactions
-- MVVM-lite architecture
+- [ ] Personal progression tracking ("Grow This Dude")
+- [ ] Analytics dashboard (volume per week)
+- [ ] PR (personal record) tracking
+- [ ] Cloud sync
+- [ ] Export to CSV
+- [ ] Dark mode polish
 
 ---
 
-## Project Vision
+## Building
 
-This app is being built as:
+```bash
+./gradlew assembleDebug
+```
 
-- A real-world Android development portfolio project
-- A practical daily gym tool
-- A scalable foundation for future features
+The APK outputs to `app/build/outputs/apk/debug/`.
 
-It emphasizes clean architecture, state handling, and real UX iteration through field testing.
+---
+
+## License
+
+MIT
