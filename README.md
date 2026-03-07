@@ -1,147 +1,145 @@
-# 🏋️ GymLoggingApp
+# Gym Logging App
 
-A modern Android gym logging application built with Kotlin — track your workouts without the database bloat.
+Android workout tracking application built with **Kotlin and Android Studio**.
 
----
-
-## Features
-
-### Lifting Tracking
-- Add exercises to a workout
-- Add sets with weight and reps
-- Edit individual sets or all sets of an exercise
-- Swipe to edit exercises
-- Tap to quickly add a set
-- Drag to reorder exercises
-- Floating point support for weight and reps
-
-### Templates
-- Create workout templates
-- Create template from current workout
-- Load templates into active workout
-- Supports custom + default exercises
-
-### Logs & History
-- Workouts saved as JSON files
-- Log viewer with detailed entries
-- Editable workout dates
-- Template name stored with workout
-- View previous workout details
-
-### UX
-- Contextual tooltips (new users only)
-- Confirmation dialogs for deletions
-- Fragment animations
-- Clean exercise card UI
+This app allows users to log workouts, track sets and reps, and store workout history locally using JSON-based persistence. The project focuses on building a practical Android application while exploring fragment-based navigation, RecyclerView interfaces, and lightweight file-based data storage.
 
 ---
 
-## Tech Stack
+# Features
 
-| Category | Technology |
-|----------|------------|
-| Language | Kotlin |
-| UI | XML layouts + ViewBinding |
-| Navigation | Manual fragment transactions |
-| Persistence | JSON files (Gson) |
-| State | ViewModel + temp autosave |
-| Min SDK | 33 (Android 13) |
-| Target SDK | 35 |
+## Workout Tracking
+
+- Create workouts by adding exercises
+- Log multiple sets per exercise
+- Record **weight and reps for each set**
+- Edit or delete sets during a workout
+
+## Exercise Management
+
+- Add exercises to a workout from a selection list
+- Support for both **default and custom exercises**
+
+## Workout History
+
+- Completed workouts are saved as **JSON files**
+- Logs are stored locally in the device's internal storage
+- Users can view previously completed workouts
+
+## Persistence System
+
+The application maintains workout progress using a temporary save system.
+
+- Current workout state is stored in `temp_workout.json`
+- Prevents data loss if the app is closed during a workout
+- Finished workouts are saved as dated log files
+
+Example log storage:
+logs/
+2025-07-23.json
+2025-07-25.json
+---
+
+# Architecture
+
+The application uses a **single-activity architecture** with fragment-based navigation.
+
+## Main Components
+
+### MainActivity
+
+Handles bottom navigation and fragment switching.
+
+### LiftingFragment
+
+The primary workout logging screen where users:
+
+- add exercises
+- log sets
+- edit sets
+- finish workouts
+
+### LogsFragment
+
+Displays previously completed workouts loaded from JSON log files.
+
+### WorkoutLogViewModel
+
+Maintains the current workout state in memory and handles temporary persistence during active workouts.
+
+---
+# Data Model
+
+Example structure used for saving workouts:
+WorkoutSession
+├─ date
+└─ exercises
+└─ ExerciseLog
+├─ name
+└─ sets
+└─ SetEntry
+├─ weight
+└─ reps
 
 ---
 
-## Architecture
+# Technologies Used
 
-### Data Flow
-
-```
-User Action → Fragment → ViewModel → JSON File
-                ↓
-         RecyclerView Adapter
-```
-
-### Storage Strategy
-
-- **Active workout:** In-memory (ViewModel) → autosaved to `temp_workout.json`
-- **Completed workouts:** `/files/logs/YYYY-MM-DD.json`
-
-This hybrid approach provides crash recovery and fragment-safe state handling without a database.
-
-### Package Structure
-
-```
-app/src/main/java/com/dzl/gymloggingapp/
-├── MainActivity.kt
-├── dataclasses/
-│   └── WorkoutSession.kt
-├── home/
-│   └── HomeFragment.kt
-├── lifting/
-│   ├── LiftingFragment.kt
-│   ├── ExerciseListAdapter.kt
-│   ├── ExercisesAdapterLogger.kt
-│   ├── EditExerciseFragment.kt
-│   ├── CustomExerciseViewModel.kt
-│   ├── ExerciseSelectionViewModel.kt
-│   └── dialogs/
-│       ├── AddExerciseDialog.kt
-│       └── FinishWorkoutDialog.kt
-├── cardio/
-│   └── CardioFragment.kt
-└── logs/
-    ├── LogsFragment.kt
-    ├── WorkoutLogAdapter.kt
-    ├── PreviousExerciseLogAdapter.kt
-    ├── WorkoutLogViewModel.kt
-    └── dialogs/
-        └── ViewPreviousLogDialog.kt
-```
+- Kotlin
+- Android SDK
+- Fragments
+- RecyclerView
+- ViewBinding
+- Gson (JSON serialization)
 
 ---
 
-## Screens
+# Design Decisions
 
-| Screen | Description |
-|--------|-------------|
-| Home | Dashboard / welcome |
-| Lifting | Main workout logging |
-| Cardio | Cardio tracking |
-| Logs | View past workouts |
+## File-Based Storage Instead of a Database
 
-Navigation: Bottom nav with 4 tabs. `MainActivity` hosts fragments in `frame_content`.
+This application intentionally avoids using Room or SQLite.  
+Instead, workouts are stored as **JSON files**.
 
----
+Benefits:
 
-## Design Goals
+- Easy debugging
+- Human-readable logs
+- No database schema management
+- Lightweight persistence
 
-- ⚡ **Fast** — Minimal friction for logging sets
-- 🔧 **Maintainable** — Modular dialogs and fragments
-- 📖 **Learnable** — Beginner-friendly codebase
-- 🧱 **Scalable** — Foundation for future features
+## Temporary Workout Recovery
 
----
+To prevent losing workout progress:
 
-## Future Enhancements
-
-- [ ] Personal progression tracking ("Grow This Dude")
-- [ ] Analytics dashboard (volume per week)
-- [ ] PR (personal record) tracking
-- [ ] Cloud sync
-- [ ] Export to CSV
-- [ ] Dark mode polish
+1. Current workout state is stored in `temp_workout.json`
+2. The file is updated during the workout
+3. When the workout finishes, it is moved to the logs directory
 
 ---
 
-## Building
+# Future Improvements
 
-```bash
-./gradlew assembleDebug
-```
+Planned improvements include:
 
-The APK outputs to `app/build/outputs/apk/debug/`.
+- Exercise search and filtering
+- Drag-and-drop exercise reordering
+- Template-based workouts
+- Detailed workout log viewer
+- UI and animation improvements
 
 ---
 
-## License
+# Project Status
 
-MIT
+This project is **actively under development** as part of ongoing Android development practice and software engineering exploration.
+
+---
+
+# Author
+
+**GoopSoftware**  
+Computer Science Student 
+
+GitHub:  
+https://github.com/GoopSoftware
