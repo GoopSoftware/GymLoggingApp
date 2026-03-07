@@ -7,7 +7,6 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
 import androidx.fragment.app.Fragment
-import androidx.recyclerview.widget.LinearLayoutManager
 import com.dzl.gymloggingapp.databinding.FragmentViewLogsBinding
 import com.dzl.gymloggingapp.dataclasses.WorkoutSession
 import com.google.gson.Gson
@@ -45,10 +44,6 @@ class ViewLogsFragment : Fragment() {
 
         binding.textViewDate.text = currentSession.date
         binding.textViewWeekday.text = getDayOfWeek(currentSession.date)
-
-        binding.recyclerViewLogs.layoutManager = LinearLayoutManager(requireContext())
-        binding.recyclerViewLogs.adapter = LogExerciseAdapter(currentSession.exercises)
-
 
         binding.textViewDate.setOnClickListener {
             showDatePicker()
@@ -95,40 +90,26 @@ class ViewLogsFragment : Fragment() {
     }
 
     private fun handleDateChange(newDate: String) {
-        val logsDir = File(requireContext().filesDir, "logs")
-        val oldFile = File(logsDir, logFileName)
-        val newFile = File(logsDir, "$newDate.json")
+        val oldFile = File(requireContext().filesDir, "logs/$logFileName")
+        val newFile = File(requireContext().filesDir, "logs/$newDate.json")
 
         if (newFile.exists()) {
             Toast.makeText(requireContext(), "Log already exists for this date", Toast.LENGTH_SHORT).show()
             return
         }
+        val renamed = oldFile.renameTo(newFile)
 
-        // Update the session's internal date
-        val updatedSession = currentSession.copy(date = newDate)
-        val updatedJson = Gson().toJson(updatedSession)
-
-        // Write the updated JSON to the *new* file first
-        try {
-            newFile.writeText(updatedJson)
-
-            // Delete the old file only after writing new one
-            if (oldFile.exists()) oldFile.delete()
-
-            // Update state + UI
+        if (renamed) {
             logFileName = "$newDate.json"
-            currentSession = updatedSession
+            currentSession = currentSession.copy(date = newDate)
             binding.textViewDate.text = newDate
             binding.textViewWeekday.text = getDayOfWeek(newDate)
-
-            Toast.makeText(requireContext(), "Date updated", Toast.LENGTH_SHORT).show()
-
-        } catch (e: Exception) {
-            e.printStackTrace()
-            Toast.makeText(requireContext(), "Error saving file", Toast.LENGTH_SHORT).show()
+        } else {
+            // Create error toast
         }
-    }
 
+
+    }
 
     companion object {
         fun newInstance(fileName: String) : ViewLogsFragment {
@@ -139,7 +120,7 @@ class ViewLogsFragment : Fragment() {
             fragment.arguments = args
             return fragment
         }
-}
+    }
 
 
 }
