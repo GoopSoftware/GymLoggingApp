@@ -1,6 +1,12 @@
 package com.dzl.gymloggingapp.lifting
 
+import android.content.Context
+import android.content.res.ColorStateList
+import android.graphics.Canvas
+import android.graphics.Color
+import android.graphics.drawable.GradientDrawable
 import android.os.Bundle
+import android.view.ContextThemeWrapper
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.Menu
@@ -12,6 +18,7 @@ import android.widget.EditText
 import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.content.ContextCompat
 import androidx.core.view.MenuProvider
 import androidx.fragment.app.activityViewModels
 import androidx.fragment.app.commit
@@ -21,11 +28,11 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.dzl.gymloggingapp.databinding.FragmentLiftingBinding
 import com.dzl.gymloggingapp.dataclasses.WorkoutSession
-import com.dzl.gymloggingapp.lifting.dialogs.AddExerciseDialog
 import com.dzl.gymloggingapp.lifting.dialogs.FinishWorkoutDialog
 import com.dzl.gymloggingapp.logs.WorkoutLogViewModel
 import com.dzl.gymloggingapp.R
 import com.dzl.gymloggingapp.databinding.DialogAddSetBinding
+import com.google.android.material.chip.Chip
 import com.google.gson.Gson
 import java.io.File
 import java.time.LocalDate
@@ -36,6 +43,7 @@ class LiftingFragment : Fragment() {
     private lateinit var adapter: ExercisesAdapterLogger
     private val exerciseViewModel: ExerciseSelectionViewModel by activityViewModels()
     private val workoutLogViewModel: WorkoutLogViewModel by activityViewModels()
+    private var currentTemplateName: String? = null
 
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -63,7 +71,16 @@ class LiftingFragment : Fragment() {
         // Logic for when user adds a new exercise
         observeExerciseSelection()
 
+        setUpTemplateChips()
+
         setUpOnClickListeners()
+
+    }
+
+    private fun setUpOnClickListeners() {
+        binding.buttonFinishWorkout.setOnClickListener {
+            launchFinishWorkoutDialog()
+        }
     }
 
     private fun setUpToolBar() {
@@ -84,6 +101,8 @@ class LiftingFragment : Fragment() {
                     return when (menuItem.itemId) {
                         R.id.menu_clear_workout -> {
                             clearWorkout()
+                            currentTemplateName = null
+                            setUpTemplateChips()
                             true
                         }
 
@@ -102,11 +121,6 @@ class LiftingFragment : Fragment() {
                             true
                         }
 
-                        R.id.menu_edit_custom_exercises -> {
-                            promptEditCustomExercises()
-                            true
-                        }
-
                         else -> false
                     }
                 }
@@ -118,9 +132,317 @@ class LiftingFragment : Fragment() {
         binding.liftingToolbar.invalidateMenu()
     }
 
-    private fun promptEditCustomExercises() {
-        Toast.makeText(context, "Coming soon!", Toast.LENGTH_LONG).show()
+    private fun setUpExerciseRecyclerView() {
+        /*
+        Initializes the RecyclerView that displays exercises for the current workout
+        Uses an adapter (ExercisesAdapter) with a click listener for each.
+        When an exercise is tapped it opens AddSetDialog to let the user add a set
+        once a set is added (weight + reps) its inserted into the exercises list
+        and the recyclerView updates just that item
+         */
+
+        // TODO: Un clutter this function by making helper functions
+
+        // Set up the RecyclerView
+        binding.recyclerViewExercises.layoutManager = LinearLayoutManager(requireContext())
+
+        // Attach adapter and handle clicks to open AddSetDialog
+        setUpAdapter()
+
+        // This function controls the left and right swipe functionality of the exercises
+        setUpSwipeControls()
+
     }
+
+    private fun setUpAdapter() {
+        adapter = ExercisesAdapterLogger(
+            workoutLogViewModel.workoutExercises,
+            onEditExerciseClicked = { position ->
+                val exercise = workoutLogViewModel.workoutExercises[position]
+                val bundle = Bundle().apply {
+                    putString("exercise_name", exercise.name)
+                    putString("sets_json", Gson().toJson(exercise.sets))
+                    putInt("exercise_position", position)
+                }
+                parentFragmentManager.commit {
+                    replace(R.id.frame_content, EditExerciseFragment::class.java, bundle)
+                    addToBackStack("EditExercise")
+                }
+            },
+            onAddExerciseClicked = {
+                launchAddExerciseFragment()
+            },
+            onAddSetClicked = { position ->
+                launchAddSetDialog(position)
+            }
+        )
+        binding.recyclerViewExercises.adapter = adapter
+    }
+
+    private fun setUpSwipeControls() {
+        attachSwipeHandler(
+            binding.recyclerViewExercises,
+            onSwipeLeft = { position ->
+                confirmDeletion(position)
+            },
+            onSwipeRight = { position ->
+                val exercise = workoutLogViewModel.workoutExercises[position]
+                val bundle = Bundle().apply {
+                    putString("exercise_name", exercise.name)
+                    putString("sets_json", Gson().toJson(exercise.sets))
+                    putInt("exercise_position", position)
+                }
+                parentFragmentManager.commit {
+                    replace(R.id.frame_content, EditExerciseFragment::class.java, bundle)
+                    addToBackStack("EditExercise")
+                }
+                adapter.notifyItemChanged(position)
+            }
+        )
+    }
+
+
+    private fun setUpTemplateChips() {
+        val templatesDir = File(requireContext().filesDir, "templates")
+        binding.templateChipGroup.removeAllViews()
+
+        val newChip = Chip(
+            ContextThemeWrapper(requireContext(), R.style.CustomChipStyle),
+            null,
+            com.google.android.material.R.attr.chipStyle
+        ).apply {
+            text = "+ New Template"
+            isCheckable = false
+            // TODO: Change this to a new template create window when its done
+
+            chipBackgroundColor =
+                ColorStateList.valueOf(ContextCompat.getColor(context, R.color.darkGray))
+            setTextColor(ContextCompat.getColor(context, R.color.lightGray))
+            setOnClickListener { promptTemplateNameAndSave() }
+        }
+        binding.templateChipGroup.addView(newChip)
+
+        if (templatesDir.exists()) {
+            templatesDir.listFiles()
+                ?.filter { it.extension == "json" }
+                ?.forEach { file ->
+                    val isActive = file.nameWithoutExtension == currentTemplateName
+
+                    val chip = Chip(
+                        ContextThemeWrapper(requireContext(), R.style.CustomChipStyle),
+                        null,
+                        com.google.android.material.R.attr.chipStyle
+                        ).apply {
+                        text = file.nameWithoutExtension
+                        isCheckable = false
+
+                        val bgColor = if (isActive) R.color.bottom_nav_selected else R.color.darkGray
+                        val textColor = if (isActive) R.color.white else R.color.lightGray
+
+                        chipBackgroundColor = ColorStateList.valueOf(ContextCompat.getColor(context, bgColor))
+                        setTextColor(ContextCompat.getColor(context, textColor))
+
+                        setOnClickListener {
+                            AlertDialog.Builder(requireContext())
+                                .setTitle("Load Template \"$text\"?")
+                                .setMessage("This will replace the current workout.")
+                                .setPositiveButton("Load") { _, _ ->
+                                    loadTemplateFromFile(file)
+                                    currentTemplateName = file.nameWithoutExtension
+                                    setUpTemplateChips() // refresh highlight
+                                }
+                                .setNegativeButton("Cancel", null)
+                                .show()
+                        }
+                    }
+                    binding.templateChipGroup.addView(chip)
+                }
+        }
+
+    }
+
+    private fun confirmDeletion(position: Int) {
+        val exerciseName = workoutLogViewModel.workoutExercises[position].name
+
+        AlertDialog.Builder(requireContext())
+            .setTitle("Delete $exerciseName?")
+            .setMessage("Are you sure you want to delete?")
+            .setPositiveButton("Delete") { _, _ ->
+                workoutLogViewModel.workoutExercises.removeAt(position)
+                adapter.notifyItemRemoved(position)
+                Toast.makeText(context, "Exercise Removed", Toast.LENGTH_SHORT).show()
+
+                currentTemplateName = null
+                setUpTemplateChips()
+            }
+            .setNegativeButton("Cancel") { _, _ ->
+                adapter.notifyItemChanged(position)
+            }
+            .show()
+    }
+
+
+    private fun attachSwipeHandler(
+        recyclerView: RecyclerView,
+        onSwipeLeft: (position: Int) -> Unit,
+        onSwipeRight: (position: Int) -> Unit
+    ) {
+        val itemTouchHelper = ItemTouchHelper(object : ItemTouchHelper.SimpleCallback(
+            0, ItemTouchHelper.LEFT or ItemTouchHelper.RIGHT
+        ) {
+            override fun onMove(
+                recyclerView: RecyclerView,
+                viewHolder: RecyclerView.ViewHolder,
+                target: RecyclerView.ViewHolder
+            ) = false
+
+            override fun onSwiped(viewHolder: RecyclerView.ViewHolder, direction: Int) {
+                val position = viewHolder.adapterPosition
+
+                // Skips special rows (aka the green + add exercise button)
+                if (viewHolder is ExercisesAdapterLogger.AddButtonViewHolder) {
+                    recyclerView.adapter?.notifyItemChanged(position)
+                    return
+                }
+
+                when (direction) {
+                    ItemTouchHelper.LEFT -> onSwipeLeft(position)
+                    ItemTouchHelper.RIGHT -> onSwipeRight(position)
+                }
+            }
+
+            override fun onChildDraw(
+                c: Canvas,
+                recyclerView: RecyclerView,
+                viewHolder: RecyclerView.ViewHolder,
+                dX: Float,
+                dY: Float,
+                actionState: Int,
+                isCurrentlyActive: Boolean
+            ) {
+                drawSwipeBackground(c, recyclerView.context, viewHolder.itemView, dX)
+                super.onChildDraw(
+                    c,
+                    recyclerView,
+                    viewHolder,
+                    dX,
+                    dY,
+                    actionState,
+                    isCurrentlyActive
+                )
+            }
+
+            override fun getSwipeDirs(
+                recyclerView: RecyclerView,
+                viewHolder: RecyclerView.ViewHolder
+            ): Int {
+                return if (viewHolder is ExercisesAdapterLogger.AddButtonViewHolder) 0 else super.getSwipeDirs(
+                    recyclerView,
+                    viewHolder
+                )
+            }
+        })
+
+        itemTouchHelper.attachToRecyclerView(recyclerView)
+    }
+
+
+    private fun drawSwipeBackground(c: Canvas, context: Context, itemView: View, dX: Float) {
+        val iconMargin = itemView.height / 4
+        val editIcon = ContextCompat.getDrawable(context, R.drawable.icons8_edit_24)
+        val deleteIcon = ContextCompat.getDrawable(context, R.drawable.icons8_delete_24)
+
+        val background = GradientDrawable().apply {
+            shape = GradientDrawable.RECTANGLE
+            cornerRadius = 48f
+            setColor(if (dX > 0) Color.parseColor("#2196F3") else Color.parseColor("#F44336"))
+        }
+
+        if (dX > 0) {
+            background.setBounds(
+                itemView.left,
+                itemView.top,
+                itemView.left + dX.toInt(),
+                itemView.bottom
+            )
+            background.draw(c)
+
+            editIcon?.let {
+                val iconTop = itemView.top + (itemView.height - it.intrinsicHeight) / 2
+                val iconLeft = itemView.left + iconMargin
+                val iconRight = iconLeft + it.intrinsicWidth
+                val iconBottom = iconTop + it.intrinsicHeight
+
+                if (dX > it.intrinsicWidth) {
+                    it.setBounds(iconLeft, iconTop, iconRight, iconBottom)
+                    it.draw(c)
+                }
+            }
+        } else if (dX < 0) {
+            background.setBounds(
+                itemView.right + dX.toInt(),
+                itemView.top,
+                itemView.right,
+                itemView.bottom
+            )
+            background.draw(c)
+
+            deleteIcon?.let {
+                val iconTop = itemView.top + (itemView.height - it.intrinsicHeight) / 2
+                val iconRight = itemView.right - iconMargin
+                val iconLeft = iconRight - it.intrinsicWidth
+                val iconBottom = iconTop + it.intrinsicHeight
+
+                if (dX < -it.intrinsicWidth) {
+                    it.setBounds(iconLeft, iconTop, iconRight, iconBottom)
+                    it.draw(c)
+                }
+            }
+        }
+    }
+
+    private fun observeExerciseSelection() {
+        /*
+        Pull the selected exercise via the ExerciseSelectionViewModel.kt
+        When a new exercise is selected from AddExerciseDialog
+        it adds the exercise to the workout list and updates the recyclerview
+         */
+        exerciseViewModel.selectedExercise.observe(viewLifecycleOwner) { exerciseName ->
+            if (exerciseName != null) {
+                val alreadyExists = workoutLogViewModel.workoutExercises.any {
+                    it.name.equals(exerciseName, ignoreCase = true)
+                }
+
+                if (alreadyExists) {
+                    Toast.makeText(
+                        context,
+                        "$exerciseName is already in your workout.",
+                        Toast.LENGTH_SHORT
+                    ).show()
+                } else {
+                    // Add selected exercise to workoutExercises list
+                    workoutLogViewModel.workoutExercises.add(
+                        ExerciseLog(
+                            exerciseName,
+                            mutableListOf()
+                        )
+                    )
+                    Toast.makeText(context, "Exercise added", Toast.LENGTH_SHORT).show()
+
+                    currentTemplateName = null
+                    setUpTemplateChips()
+                }
+
+                if (workoutLogViewModel.workoutExercises.size == 1) {
+                    adapter.notifyDataSetChanged()
+                } else {
+                    adapter.notifyItemInserted(workoutLogViewModel.workoutExercises.lastIndex)
+                }
+                exerciseViewModel.clearSelection()
+            }
+        }
+    }
+
 
     private fun showFilteredLogFilePicker(daysBack: Int) {
 
@@ -146,7 +468,11 @@ class LiftingFragment : Fragment() {
             .sortedByDescending { it.name }
 
         if (validLogFiles.isEmpty()) {
-            Toast.makeText(requireContext(), "No logs in past $daysBack days", Toast.LENGTH_SHORT)
+            Toast.makeText(
+                requireContext(),
+                "No logs in past $daysBack days",
+                Toast.LENGTH_SHORT
+            )
                 .show()
             return
         }
@@ -201,7 +527,8 @@ class LiftingFragment : Fragment() {
             ).show()
 
         } catch (e: Exception) {
-            Toast.makeText(requireContext(), "Failed to load log", Toast.LENGTH_SHORT).show()
+            Toast.makeText(requireContext(), "Failed to load log", Toast.LENGTH_SHORT)
+                .show()
             e.printStackTrace()
         }
 
@@ -210,7 +537,8 @@ class LiftingFragment : Fragment() {
     private fun promptTemplateLoad() {
         val templatesDir = File(requireContext().filesDir, "templates")
         if (!templatesDir.exists() || templatesDir.listFiles().isNullOrEmpty()) {
-            Toast.makeText(requireContext(), "No templates found", Toast.LENGTH_SHORT).show()
+            Toast.makeText(requireContext(), "No templates found", Toast.LENGTH_SHORT)
+                .show()
             return
         }
 
@@ -232,9 +560,12 @@ class LiftingFragment : Fragment() {
         val json = file.readText()
         val gson = Gson()
 
+
         try {
             val template = gson.fromJson(json, WorkoutTemplate::class.java)
 
+            currentTemplateName = file.nameWithoutExtension
+            setUpTemplateChips()
             workoutLogViewModel.workoutExercises.clear()
 
             template.exercises.forEach { exerciseName ->
@@ -250,7 +581,11 @@ class LiftingFragment : Fragment() {
                 Toast.LENGTH_SHORT
             ).show()
         } catch (e: Exception) {
-            Toast.makeText(requireContext(), "Failed to load template", Toast.LENGTH_SHORT).show()
+            Toast.makeText(
+                requireContext(),
+                "Failed to load template",
+                Toast.LENGTH_SHORT
+            ).show()
             e.printStackTrace()
         }
     }
@@ -274,7 +609,11 @@ class LiftingFragment : Fragment() {
                 if (name.isNotEmpty()) {
                     saveWorkoutAsTemplate(name)
                 } else {
-                    Toast.makeText(requireContext(), "Template name required", Toast.LENGTH_SHORT)
+                    Toast.makeText(
+                        requireContext(),
+                        "Template name required",
+                        Toast.LENGTH_SHORT
+                    )
                         .show()
                 }
             }
@@ -285,7 +624,8 @@ class LiftingFragment : Fragment() {
     private fun saveWorkoutAsTemplate(templateName: String) {
         val exerciseNames = workoutLogViewModel.workoutExercises.map { it.name }
         if (exerciseNames.isEmpty()) {
-            Toast.makeText(requireContext(), "No exercises to save", Toast.LENGTH_SHORT).show()
+            Toast.makeText(requireContext(), "No exercises to save", Toast.LENGTH_SHORT)
+                .show()
             return
         }
 
@@ -297,86 +637,31 @@ class LiftingFragment : Fragment() {
         val templatesDir = File(requireContext().filesDir, "templates")
         if (!templatesDir.exists()) templatesDir.mkdirs()
 
-        val safeFileName = templateName.replace("""[^\w\d_-]""".toRegex(), "_")
+        val safeFileName = templateName.replace("""[^\w\d\s-]""".toRegex(), "").trim()
         val file = File(templatesDir, "$safeFileName.json")
         file.writeText(json)
 
-        Toast.makeText(requireContext(), "Template \"$templateName\" saved!", Toast.LENGTH_SHORT)
+        Toast.makeText(
+            requireContext(),
+            "Template \"$templateName\" saved!",
+            Toast.LENGTH_SHORT
+        )
             .show()
-    }
 
+        currentTemplateName = templateName
+        setUpTemplateChips()
+    }
 
     override fun onPause() {
         workoutLogViewModel.saveToFile()
         super.onPause()
     }
 
-
-    private fun setUpExerciseRecyclerView() {
-        /*
-        Initializes the RecyclerView that displays exercises for the current workout
-        Uses an adapter (ExercisesAdapter) with a click listener for each.
-        When an exercise is tapped it opens AddSetDialog to let the user add a set
-        once a set is added (weight + reps) its inserted into the exercises list
-        and the recyclerView updates just that item
-         */
-
-
-        // Set up the RecyclerView
-        binding.recyclerViewExercises.layoutManager = LinearLayoutManager(requireContext())
-
-        // Attach adapter and handle clicks to open AddSetDialog
-        adapter = ExercisesAdapterLogger(
-            workoutLogViewModel.workoutExercises,
-            onEditExerciseClicked = { position ->
-                val exercise = workoutLogViewModel.workoutExercises[position]
-                val bundle = Bundle().apply {
-                    putString("exercise_name", exercise.name)
-                    putString("sets_json", Gson().toJson(exercise.sets))
-                    putInt("exercise_position", position)
-                }
-                parentFragmentManager.commit {
-                    replace(R.id.frame_content, EditExerciseFragment::class.java, bundle)
-                    addToBackStack("EditExercise")
-                }
-            },
-            onAddExerciseClicked = {
-                launchAddExerciseDialog()
-            },
-            onAddSetClicked = { position ->
-                launchAddSetDialog(position)
-            }
-        )
-        binding.recyclerViewExercises.adapter = adapter
-
-        val itemTouchHelper = ItemTouchHelper(object : ItemTouchHelper.SimpleCallback(0, ItemTouchHelper.LEFT) {
-            override fun onMove(
-                recyclerView: RecyclerView,
-                viewHolder: RecyclerView.ViewHolder,
-                target: RecyclerView.ViewHolder
-            ): Boolean = false
-
-            override fun onSwiped(viewHolder: RecyclerView.ViewHolder, direction: Int) {
-                val position = viewHolder.adapterPosition
-                if (position < workoutLogViewModel.workoutExercises.size) {
-                    workoutLogViewModel.workoutExercises.removeAt(position)
-                    adapter.notifyItemRemoved(position)
-                } else {
-                    adapter.notifyItemChanged(position)
-                }
-            }
-
-            override fun getSwipeDirs(
-                recyclerView: RecyclerView,
-                viewHolder: RecyclerView.ViewHolder
-            ): Int {
-                return if (viewHolder is ExercisesAdapterLogger.AddButtonViewHolder) 0 else super.getSwipeDirs(recyclerView, viewHolder)
-            }
-
-        })
-
-        itemTouchHelper.attachToRecyclerView(binding.recyclerViewExercises)
-
+    private fun launchAddExerciseFragment() {
+        parentFragmentManager.beginTransaction()
+            .replace(R.id.frame_content, AddExerciseFragment())
+            .addToBackStack("AddExerciseFragment")
+            .commit()
     }
 
     private fun launchAddSetDialog(position: Int) {
@@ -385,70 +670,30 @@ class LiftingFragment : Fragment() {
 
         val binding = DialogAddSetBinding.inflate(layoutInflater)
 
-        exercise.sets.lastOrNull()?.let { lastSet ->
-            binding.editTextWeight.setText(lastSet.weight?.toString() ?: "")
-            binding.editTextReps.setText(lastSet.reps?.toString() ?: "")
-        }
-
         AlertDialog.Builder(context)
             .setTitle("Add Set to ${exercise.name}")
             .setView(binding.root)
-            .setPositiveButton("Add") {_, _ ->
-                val weight = binding.editTextWeight.text.toString().toIntOrNull()
-                val reps = binding.editTextReps.text.toString().toIntOrNull()
+            .setPositiveButton("Add") { _, _ ->
+                val weight = binding.editTextWeight.text.toString().toFloatOrNull()
+                val reps = binding.editTextReps.text.toString().toFloatOrNull()
 
                 if (weight != null && reps != null) {
-                  val set = SetEntry(weight, reps)
-                  exercise.sets.add(set)
-                  adapter.notifyItemChanged(position)
+                    val set = SetEntry(weight, reps)
+                    exercise.sets.add(set)
+                    adapter.notifyItemChanged(position)
+                    Toast.makeText(context, "Set Added!", Toast.LENGTH_SHORT).show()
                 } else {
-                    Toast.makeText(context, "Enter valid weight and reps", Toast.LENGTH_SHORT).show()
+                    Toast.makeText(
+                        context,
+                        "Enter valid weight and reps",
+                        Toast.LENGTH_SHORT
+                    )
+                        .show()
                 }
             }
             .setNegativeButton("Cancel", null)
             .show()
 
-    }
-
-
-
-    private fun observeExerciseSelection() {
-        /*
-        Pull the selected exercise from AddExerciseDialog.kt via the ExerciseSelectionViewModel.kt
-        When a new exercise is selected from AddExerciseDialog
-        it adds the exercise to the workout list, updates the recyclerview,
-        and clears the selection to prevent duplicate entries
-         */
-        exerciseViewModel.selectedExercise.observe(viewLifecycleOwner) { exerciseName ->
-            if (exerciseName != null) {
-                // Add selected exercise to workoutExercises list
-                workoutLogViewModel.workoutExercises.add(
-                    ExerciseLog(
-                        exerciseName,
-                        mutableListOf()
-                    )
-                )
-
-                if (workoutLogViewModel.workoutExercises.size == 1) {
-                    adapter.notifyDataSetChanged()
-                } else {
-                    adapter.notifyItemInserted(workoutLogViewModel.workoutExercises.lastIndex)
-                }
-                exerciseViewModel.clearSelection()
-            }
-        }
-    }
-
-    private fun setUpOnClickListeners() {
-        //binding.buttonAddExercise.setOnClickListener { launchExerciseDialog() }
-        binding.buttonFinishWorkout.setOnClickListener {
-            launchFinishWorkoutDialog()
-        }
-    }
-
-    private fun launchAddExerciseDialog() {
-        val dialog = AddExerciseDialog()
-        dialog.show(parentFragmentManager, "AddExerciseDialog")
     }
 
     private fun launchFinishWorkoutDialog() {
@@ -488,7 +733,6 @@ class LiftingFragment : Fragment() {
 
     }
 
-
 }
 
 data class ExerciseLog(
@@ -497,8 +741,8 @@ data class ExerciseLog(
 )
 
 data class SetEntry(
-    var weight: Int? = null,
-    var reps: Int? = null
+    var weight: Float? = null,
+    var reps: Float? = null
 )
 
 data class WorkoutTemplate(

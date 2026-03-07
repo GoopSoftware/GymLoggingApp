@@ -3,6 +3,7 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
+    android:background="@drawable/exercise_card_background"
     android:padding="8dp">
 
     <EditText
@@ -10,10 +11,11 @@
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:focusable="true"
-        android:textColor="@color/black"
+        android:textColor="@color/mainText"
+        android:textColorHint="@color/mainText"
         android:focusableInTouchMode="true"
         android:hint="Weight"
-        android:inputType="number"
+        android:inputType="numberDecimal"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toStartOf="@id/edit_text_reps"
         app:layout_constraintHorizontal_weight="1"
@@ -23,12 +25,13 @@
     <EditText
         android:id="@+id/edit_text_reps"
         android:layout_width="0dp"
-        android:textColor="@color/black"
+        android:textColor="@color/mainText"
         android:layout_height="wrap_content"
         android:focusable="true"
         android:focusableInTouchMode="true"
         android:hint="Reps"
-        android:inputType="number"
+        android:textColorHint="@color/mainText"
+        android:inputType="numberDecimal"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toStartOf="@id/button_delete_set"
         app:layout_constraintHorizontal_weight="1"

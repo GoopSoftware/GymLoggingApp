@@ -9,7 +9,7 @@
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:text="+ New Set"
-        android:textColor="@color/black"
+        android:textColor="@color/mainText"
         android:textSize="18sp"
         android:padding="12dp"
         android:gravity="center"

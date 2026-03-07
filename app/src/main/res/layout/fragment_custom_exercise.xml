@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/top_nav_background">
+
+
+    <com.google.android.material.appbar.MaterialToolbar
+        android:id="@+id/custom_exercise_toolbar"
+        android:layout_width="match_parent"
+        android:layout_height="80dp"
+        android:background="@color/top_nav_background"
+        android:paddingTop="12dp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:navigationIcon="@drawable/baseline_arrow_back_24"
+        app:navigationIconTint="@color/mainText" />
+
+    <TextView
+        android:id="@+id/text_view_exercise_name"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="24dp"
+        android:paddingTop="12dp"
+        android:text="Edit Exercises"
+        android:textColor="@color/mainText"
+        android:textSize="20sp"
+        android:textStyle="bold"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/recycler_custom_exercises"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:background="@color/top_nav_background"
+        android:padding="12dp"
+        app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
+        app:layout_constraintBottom_toTopOf="@id/button_create_new_exercise"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/custom_exercise_toolbar" />
+
+    <Button
+        android:id="@+id/button_create_new_exercise"
+        style="@style/Widget.MaterialComponents.Button.OutlinedButton"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="12dp"
+        android:backgroundTint="@color/bottom_nav_selected"
+        android:text="Create New Exercise"
+
+        android:textColor="@color/mainText"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/recycler_custom_exercises" />
+
+
+</androidx.constraintlayout.widget.ConstraintLayout>

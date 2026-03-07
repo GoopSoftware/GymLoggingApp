@@ -7,6 +7,8 @@ import androidx.recyclerview.widget.RecyclerView
 import com.dzl.gymloggingapp.databinding.ItemAddExerciseButtonBinding
 import com.dzl.gymloggingapp.databinding.ItemExerciseLogForLiftingFragmentBinding
 import com.dzl.gymloggingapp.databinding.ItemExerciseLogForLogsDialogBinding
+import com.dzl.gymloggingapp.utils.smartFormat
+
 
 class ExercisesAdapterLogger(
     private val exercises: List<ExerciseLog>,
@@ -61,19 +63,14 @@ class ExercisesAdapterLogger(
                 //--------------------------------------------------------------------------------
                 // This is where we will create the logic to display the previous weeks sets/reps
                 //--------------------------------------------------------------------------------
-                "🟢 Tap to add set   ✏️ Hold to edit"
+                ""
             } else {
-                exercise.sets.joinToString { "${it.weight}x${it.reps}" }
+                exercise.sets.joinToString { "${it.weight.smartFormat()}x${it.reps.smartFormat()}" }
             }
 
             // Normal tap to add set
             holder.itemView.setOnClickListener {
                 onAddSetClicked(position)
-            }
-
-            holder.itemView.setOnLongClickListener {
-                onEditExerciseClicked(position)
-                true
             }
 
         } else if (holder is AddButtonViewHolder) {

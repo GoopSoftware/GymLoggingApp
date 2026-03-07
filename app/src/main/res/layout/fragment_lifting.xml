@@ -1,41 +1,91 @@
 <?xml version="1.0" encoding="utf-8"?>
-
-<!-- Constraint for entire page -->
-
 <androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
-    android:layout_height="match_parent">
+    android:layout_height="match_parent"
+    android:background="@color/background">
 
-
-    <!-- Start Header -->
     <com.google.android.material.appbar.MaterialToolbar
         android:id="@+id/lifting_toolbar"
         android:layout_width="match_parent"
         android:layout_height="80dp"
-        android:paddingTop="12dp"
         android:background="@color/top_nav_background"
+        android:paddingTop="12dp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        app:title="Lifting"
+        app:title=""
         app:titleTextAppearance="@style/TextAppearance.Material3.HeadlineLarge"
         app:titleTextColor="@android:color/black" />
 
     <TextView
+        android:id="@+id/text_view_exercise_name"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:paddingTop="24dp"
+        android:layout_marginTop="24dp"
+        android:paddingTop="12dp"
         android:text="Lifting"
         android:textColor="@color/mainText"
         android:textSize="20sp"
-        app:layout_constraintBottom_toTopOf="@id/recycler_view_exercises"
+        android:textStyle="bold"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
     <!-- End Header -->
+
+    <TextView
+        android:id="@+id/text_view_top_bar"
+        android:layout_width="match_parent"
+        android:layout_height="125dp"
+        android:text="Workout Summary"
+        android:textColor="@color/mainText"
+        android:paddingTop="6dp"
+        android:gravity="center_horizontal"
+        android:fontFamily="sans-serif-medium"
+        android:background="@drawable/exercise_card_background"
+        app:layout_constraintTop_toBottomOf="@id/lifting_toolbar"
+        app:layout_constraintBottom_toTopOf="@id/layout_template_bar"
+        />
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/layout_template_bar"
+        android:layout_width="match_parent"
+        android:layout_marginTop="2dp"
+        android:layout_height="wrap_content"
+        android:background="@drawable/search_chip_bar_bg"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/text_view_top_bar">
+
+
+        <HorizontalScrollView
+            android:id="@+id/scroll_view_templates"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:overScrollMode="never"
+            android:paddingLeft="4dp"
+            android:paddingRight="4dp"
+            android:scrollbars="none"
+            app:layout_constraintTop_toTopOf="@id/layout_template_bar"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent">
+
+            <com.google.android.material.chip.ChipGroup
+                android:id="@+id/template_chip_group"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:padding="4dp"
+                app:chipSpacingHorizontal="12dp"
+                app:chipSpacingVertical="4dp"
+                app:singleLine="true" />
+
+        </HorizontalScrollView>
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
+
 
 
     <!-- Exercises -->
@@ -43,24 +93,27 @@
         android:id="@+id/recycler_view_exercises"
         android:layout_width="0dp"
         android:layout_height="0dp"
-        android:paddingTop="16dp"
-        android:background="@color/lightGray"
+        android:background="@color/background"
+        android:paddingTop="2dp"
         app:layout_constraintBottom_toTopOf="@id/button_finish_workout"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/lifting_toolbar"
-        tools:listitem="@layout/item_exercise_log_for_lifting_fragment"/>
+        app:layout_constraintTop_toBottomOf="@id/layout_template_bar"
+        tools:listitem="@layout/item_exercise_log_for_lifting_fragment" />
 
 
     <Button
         android:id="@+id/button_finish_workout"
         style="@style/Widget.MaterialComponents.Button.OutlinedButton"
         android:layout_width="0dp"
-        android:layout_marginBottom="12dp"
         android:layout_height="60dp"
+        android:layout_marginLeft="16dp"
+        android:layout_marginRight="16dp"
+        android:layout_marginBottom="12dp"
+        android:foreground="?attr/selectableItemBackgroundBorderless"
+        android:backgroundTint="@color/bottom_nav_selected"
         android:text="Finish Workout"
-        android:backgroundTint="@color/lightGray"
-        android:textColor="@color/black"
+        android:textColor="@color/white"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent" />
